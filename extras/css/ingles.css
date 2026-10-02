@@ -1,0 +1,153 @@
+/* Phonics da escola (inglês). Andika = letra de leitura (a e g de uma volta só). */
+.ig-andika { font-family: "Andika", sans-serif; }
+.ig-emoji { line-height: 1.1; }
+.ig-marca { color: var(--terracota); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+
+/* item que a Lila está falando agora */
+.ig-falando { outline: 4px solid var(--mostarda); outline-offset: 2px; transform: scale(1.05); transition: transform 0.15s; }
+
+/* cartão do grupo no menu: letras grandes em Andika */
+.xt-cartao-txt b.ig-letras { font-size: 1.75rem; font-weight: 700; letter-spacing: 4px; line-height: 1.1; }
+
+/* faixa de letras do grupo */
+.ig-faixa { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; }
+.ig-faixa-item {
+  min-width: 92px; min-height: 92px; padding: 6px 14px; border-radius: 20px; background: #fff;
+  box-shadow: var(--sombra); display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ig-faixa-item span { font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--cor, var(--ink)); }
+.ig-faixa-item small { font-size: 1.5rem; line-height: 1.2; }
+.ig-faixa-item:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16); }
+
+/* ---------- Sons e figuras ---------- */
+.ig-sons { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 14px; width: 100%; }
+.ig-som {
+  position: relative; background: #fff; border-radius: 24px; box-shadow: var(--sombra);
+  padding: 14px 10px; min-height: 210px; border: 4px solid transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+}
+.ig-som.aberto { border-color: var(--cor, var(--salvia)); }
+.ig-grafema { font-size: 4.6rem; font-weight: 700; line-height: 1; color: var(--cor, var(--ink)); }
+.ig-fim { font-size: 0.9rem; font-weight: 700; color: var(--madeira); margin-top: -4px; }
+.ig-ancora { display: flex; align-items: center; gap: 10px; font-size: 1.9rem; font-weight: 700; padding: 2px 12px; border-radius: 16px; }
+.ig-ancora-emoji { font-size: 3rem; line-height: 1.1; }
+.ig-exemplos { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; visibility: hidden; }
+.ig-som.aberto .ig-exemplos { visibility: visible; animation: xt-pulo 0.4s; }
+.ig-ex {
+  display: flex; flex-direction: column; align-items: center; min-width: 92px;
+  padding: 4px 10px; border-radius: 16px; background: var(--cream); font-size: 1.25rem; font-weight: 700;
+}
+.ig-ex-emoji { font-size: 2.3rem; line-height: 1.15; }
+.ig-visto {
+  position: absolute; top: 8px; right: 10px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--salvia); color: #fff; font-weight: 800; line-height: 30px; text-align: center; display: none;
+}
+.ig-som.aberto .ig-visto { display: block; }
+
+/* ---------- jogos ---------- */
+.ig-linha { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; width: 100%; }
+.ig-figura { width: 180px; height: 170px; }
+.ig-figura .ig-emoji { font-size: 6rem; }
+.ig-revela { min-height: 3.6rem; font-size: 2.6rem; font-weight: 700; line-height: 1.3; }
+.ig-letra { width: 100px; height: 110px; font-size: 3.4rem; font-weight: 700; line-height: 1; }
+.ig-letra-grande { width: 150px; height: 160px; font-size: 7rem; font-weight: 700; line-height: 1; }
+.ig-fig { width: 140px; height: 140px; padding: 6px; }
+.ig-fig .ig-emoji { font-size: 4.2rem; }
+.ig-fig-larga { width: 200px; }
+.ig-fig-larga .ig-emoji { font-size: 3.6rem; white-space: nowrap; }
+.ig-fig-cena { width: 190px; height: 160px; }
+.ig-fig-cena .ig-cena { width: 170px; }
+.ig-ler {
+  background: #fff; border-radius: 24px; box-shadow: var(--sombra); padding: 8px 34px;
+  font-size: 4.4rem; font-weight: 700; letter-spacing: 3px; line-height: 1.25;
+}
+.ig-frase {
+  background: #fff; border-radius: 24px; box-shadow: var(--sombra); padding: 14px 24px; max-width: 100%;
+  font-size: 2.3rem; font-weight: 700; line-height: 1.35; text-align: center;
+}
+.ig-palavra-op { min-width: 140px; height: 110px; font-size: 2.9rem; font-weight: 700; }
+.ig-significado { width: 210px; min-height: 150px; gap: 6px; font-size: 1.1rem; line-height: 1.25; text-align: center; }
+.ig-significado .ig-emoji { font-size: 3rem; }
+.ig-opcoes-4 { max-width: 640px; }
+
+/* ---------- Monte a palavra ---------- */
+.ig-casas { display: flex; gap: 10px; justify-content: center; }
+.ig-casa {
+  width: 86px; height: 100px; border-radius: 18px; border: 4px dashed #d9c3a5; background: #fffaf2;
+  display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700;
+}
+.ig-casa.atual { border-color: var(--mostarda); background: #fff; }
+.ig-casa.cheia { border-style: solid; border-color: var(--salvia); background: #fff; animation: xt-pulo 0.3s; }
+.ig-completa .ig-casa { background: #eef7ec; }
+.ig-pecas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 600px; margin-top: 6px; }
+.ig-peca {
+  width: 92px; height: 100px; border-radius: 20px; background: #fff; box-shadow: var(--sombra);
+  font-size: 3rem; font-weight: 700; line-height: 1;
+}
+.ig-peca:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16); }
+.ig-peca.usada { visibility: hidden; }
+.ig-treme { animation: xt-treme 0.4s; }
+.ig-dica { outline: 4px solid var(--mostarda); animation: ig-pisca 1s infinite; }
+@keyframes ig-pisca { 50% { transform: scale(1.08); } }
+
+/* ---------- cartões de aprender ---------- */
+.ig-grade-cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; width: 100%; }
+.ig-cartao-pal {
+  background: #fff; border-radius: 22px; box-shadow: var(--sombra); padding: 12px 8px; min-height: 150px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.ig-cartao-pal:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16); }
+.ig-cartao-pal .ig-emoji { font-size: 3.4rem; }
+.ig-cartao-pal b { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.ig-cartao-pal small { font-size: 0.95rem; font-weight: 700; color: var(--madeira); }
+.ig-com-cena .ig-cena { width: 150px; }
+.ig-tricky b { font-size: 2.8rem; }
+.ig-tricky small { font-size: 1.1rem; color: var(--ink); font-weight: 400; }
+
+/* opostos: dois cartões lado a lado */
+.ig-pares { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 12px; width: 100%; }
+.ig-par { display: flex; align-items: stretch; background: #fff; border-radius: 22px; box-shadow: var(--sombra); padding: 4px; }
+.ig-par .ig-cartao-pal { flex: 1; box-shadow: none; }
+.ig-par-meio { align-self: center; font-size: 1.6rem; font-weight: 800; color: var(--madeira); }
+
+/* cenas de "Where is it?" */
+.ig-cena { display: block; height: auto; }
+
+/* ---------- Frases da escola ---------- */
+.ig-frases-escola { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.ig-fe {
+  display: flex; align-items: center; gap: 14px; text-align: left; min-height: 88px; width: 100%;
+  background: #fff; border-radius: 20px; padding: 10px 16px; box-shadow: var(--sombra);
+}
+.ig-fe:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16); }
+.ig-fe .ig-emoji { font-size: 2.6rem; flex: none; }
+.ig-fe-txt { flex: 1; display: flex; flex-direction: column; }
+.ig-fe-txt b { font-size: 1.45rem; font-weight: 700; line-height: 1.25; }
+.ig-fe-txt small { font-size: 1rem; font-weight: 700; color: var(--madeira); }
+.ig-fe-som { font-size: 1.4rem; flex: none; opacity: 0.6; }
+
+/* ---------- celular ---------- */
+@media (max-width: 520px) {
+  .ig-grafema { font-size: 3.8rem; }
+  .ig-ancora { font-size: 1.6rem; }
+  .ig-figura { width: 140px; height: 130px; }
+  .ig-figura .ig-emoji { font-size: 4.6rem; }
+  .ig-letra { width: 84px; height: 92px; font-size: 2.8rem; }
+  .ig-letra-grande { width: 120px; height: 130px; font-size: 5.6rem; }
+  .ig-fig { width: 120px; height: 120px; }
+  .ig-fig .ig-emoji { font-size: 3.6rem; }
+  .ig-fig-larga { width: 150px; }
+  .ig-fig-larga .ig-emoji { font-size: 2.8rem; }
+  .ig-fig-cena { width: 150px; height: 130px; }
+  .ig-fig-cena .ig-cena { width: 136px; }
+  .ig-ler { font-size: 3.4rem; padding: 6px 24px; }
+  .ig-frase { font-size: 1.8rem; padding: 12px 16px; }
+  .ig-revela { font-size: 2.1rem; min-height: 3rem; }
+  .ig-casa { width: 70px; height: 84px; font-size: 2.4rem; }
+  .ig-peca { width: 80px; height: 88px; font-size: 2.5rem; }
+  .ig-palavra-op { min-width: 120px; height: 96px; font-size: 2.4rem; }
+  .ig-significado { width: 100%; min-height: 110px; flex-direction: row; justify-content: flex-start; text-align: left; }
+  .ig-grade-cartoes { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .ig-tricky b { font-size: 2.3rem; }
+  .xt-cartao-txt b.ig-letras { font-size: 1.5rem; }
+}

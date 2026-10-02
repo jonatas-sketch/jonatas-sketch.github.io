@@ -1,0 +1,78 @@
+/* Letras na Pauta */
+.pauta { display: block; background: #fff; border-radius: 18px; }
+.pauta-grande { width: 100%; height: auto; box-shadow: var(--sombra); }
+.lt-mais { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.lt-mais:empty { display: none; }
+.pauta-media { width: min(100%, 360px); height: auto; }
+.pauta-forma { width: min(80vw, 440px); height: auto; }
+.pauta-mini { width: 100%; height: 100%; border-radius: 12px; }
+.pauta-tracar { width: 100%; touch-action: none; box-shadow: var(--sombra); }
+.pauta-bicho { transition: opacity 0.25s; }
+.pauta-zonas rect { transition: opacity 0.25s; }
+
+.traco-anima { stroke-dasharray: 1; stroke-dashoffset: 1; animation: lt-desenha 0.7s ease-out both; }
+@keyframes lt-desenha { 0% { opacity: 0; stroke-dashoffset: 1; } 1% { opacity: 1; } 100% { opacity: 1; stroke-dashoffset: 0; } }
+
+/* botões dos bichos */
+.lt-bichos { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.lt-bicho {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 128px; padding: 10px 16px 12px; border-radius: 22px;
+  background: var(--clara); border: 4px solid var(--cor); box-shadow: var(--sombra);
+}
+.lt-bicho b { font-size: 1.2rem; color: var(--cor); font-weight: 800; }
+.lt-bicho small { font-size: 0.8rem; color: var(--ink); opacity: 0.7; font-weight: 600; }
+.lt-bicho-emoji { font-size: 3rem; line-height: 1.1; }
+.lt-bicho.ativo { transform: translateY(-3px) scale(1.04); background: #fff; }
+.lt-fim { min-height: 10px; }
+.lt-ficha-grande .pauta-mini { width: 190px; height: 290px; }
+
+/* fichas com pauta */
+.lt-ficha-pauta { padding: 10px; }
+.lt-ficha-pauta .pauta-mini { width: 150px; height: 170px; }
+.lt-ficha-peq .pauta-mini { width: 112px; height: 140px; }
+.lt-ficha-palavra { padding: 8px 14px; }
+.lt-palavra-svg { height: 96px; width: auto; display: block; }
+
+/* escolher letra */
+.lt-letras { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; width: 100%; }
+.lt-letra-btn {
+  display: flex; flex-direction: column; align-items: center; padding: 6px 6px 4px;
+  border-radius: 16px; background: var(--clara); border: 3px solid var(--cor); box-shadow: var(--sombra);
+}
+.lt-letra-btn .pauta-mini { width: 76px; height: 100px; }
+.lt-letra-est { font-size: 0.9rem; color: var(--cor); font-weight: 800; min-height: 1.2em; }
+
+/* traçar */
+.lt-tracar { width: 100%; }
+.lt-trilha { fill: none; stroke: #f3e7d4; stroke-width: 26; stroke-linecap: round; stroke-linejoin: round; }
+.lt-centro { fill: none; stroke: #c9b391; stroke-width: 2.4; stroke-dasharray: 3 6; stroke-linecap: round; }
+.lt-progresso { fill: none; stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; }
+.lt-livre { fill: none; stroke: var(--ink); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.lt-inicio { fill: #43a047; stroke: #fff; stroke-width: 2.5; }
+.lt-inicio.pisca { animation: lt-pisca 0.3s 3; }
+@keyframes lt-pisca { 50% { r: 15; } }
+.lt-inicio-num { fill: #fff; font-size: 13px; font-weight: 800; text-anchor: middle; font-family: "Baloo 2", sans-serif; pointer-events: none; }
+.lt-seta { fill: #43a047; opacity: 0.85; }
+.lt-botoes { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.lt-modelo { align-self: flex-start; display: flex; align-items: center; gap: 8px; }
+.lt-modelo .pauta-mini { width: 70px; height: 90px; box-shadow: var(--sombra); }
+
+@media (min-width: 700px) {
+  .lt-bicho { min-width: 170px; padding: 14px 20px 16px; }
+  .lt-bicho-emoji { font-size: 4rem; }
+  .lt-bicho b { font-size: 1.4rem; }
+  .lt-ficha-pauta .pauta-mini { width: 240px; height: 300px; }
+  .lt-ficha-peq .pauta-mini { width: 150px; height: 190px; }
+  .lt-ficha-grande .pauta-mini { width: 230px; height: 360px; }
+  .lt-palavra-svg { height: 120px; }
+  .pauta-media { width: min(100%, 480px); }
+}
+@media (max-width: 520px) {
+  .lt-bicho { min-width: 96px; padding: 8px 10px; }
+  .lt-bicho-emoji { font-size: 2.3rem; }
+  .lt-ficha-pauta .pauta-mini { width: 120px; height: 140px; }
+  .lt-ficha-peq .pauta-mini { width: 74px; height: 100px; }
+  .lt-ficha-grande .pauta-mini { width: 150px; height: 230px; }
+  .lt-palavra-svg { height: 70px; }
+}
