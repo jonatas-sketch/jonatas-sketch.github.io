@@ -8,9 +8,21 @@ export const CHAO = 100;
 export const PORAO = 150;
 const MARGEM_Y = 16;
 
+// Espaço do dedinho entre palavras (como a escola ensina)
+export const ESPACO_DEDO = 40;
+const larg = (l) => (l === ' ' ? ESPACO_DEDO : LETRAS[l]?.w || 30);
 // Largura de uma palavra desenhada (com espaço entre letras)
 export function larguraPalavra(palavra, espaco = 10) {
-  return [...palavra].reduce((t, l) => t + (LETRAS[l]?.w || 30) + espaco, -espaco);
+  return [...palavra].reduce((t, l) => t + larg(l) + espaco, -espaco);
+}
+// Posição x de cada letra (os espaços entram como { l: ' ' })
+export function posicoes(palavra, espaco = 10) {
+  let x = 0;
+  return [...palavra].map((l) => {
+    const p = { l, x, w: larg(l) };
+    x += p.w + espaco;
+    return p;
+  });
 }
 
 // Grupo <g> com a letra; transform opcional (para versões "erradas")
@@ -40,10 +52,8 @@ export function letraG(l, { x = 0, cor = 'var(--ink)', espessura = 9, alturaY, c
 
 export function palavraG(palavra, { x = 0, cor, espessura, espaco = 10, cores } = {}) {
   const g = s('g', { transform: `translate(${x} 0)` });
-  let cx = 0;
-  for (const l of palavra) {
-    g.append(letraG(l, { x: cx, cor: cores ? cores(l) : cor, espessura }));
-    cx += (LETRAS[l]?.w || 30) + espaco;
+  for (const p of posicoes(palavra, espaco)) {
+    if (p.l !== ' ') g.append(letraG(p.l, { x: p.x, cor: cores ? cores(p.l) : cor, espessura }));
   }
   return g;
 }

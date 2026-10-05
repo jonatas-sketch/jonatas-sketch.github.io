@@ -1,6 +1,8 @@
 // Base comum dos módulos extras (Letras na Pauta, Phonics, Música).
 // Mesmo visual e mesma voz da Lila do app principal.
 import { VOZ } from './voz-index.js';
+import { ELOGIOS, DE_NOVO, FALA_TRANCADA } from './falas-core.js';
+export { ELOGIOS, DE_NOVO };
 
 // ---------- DOM ----------
 export function h(tag, attrs, ...kids) {
@@ -116,9 +118,16 @@ export function calar() {
   sequencia++;
   pararFala();
 }
+let ultimoCancelamento = 0;
 function pararFala() {
   falaToken++;
-  try { window.speechSynthesis.cancel(); } catch {}
+  try {
+    const ss = window.speechSynthesis;
+    if (ss.speaking || ss.pending) {
+      ss.cancel();
+      ultimoCancelamento = Date.now();
+    }
+  } catch {}
   if (falaAtual) {
     try { falaAtual.stop(); } catch {}
     falaAtual = null;
@@ -131,7 +140,11 @@ function tocarBuffer(buf, token) {
     const src = c.createBufferSource();
     src.buffer = buf;
     src.connect(c.destination);
-    src.onended = () => ok();
+    let fim = false;
+    const terminar = () => { if (!fim) { fim = true; ok(); } };
+    src.onended = terminar;
+    // se o iPad "dormir" o som, a fala não pode prender a tela
+    setTimeout(terminar, buf.duration * 1000 + 600);
     falaAtual = src;
     src.start();
   });
@@ -159,6 +172,14 @@ function melhorVoz(tag) {
 function tts(text, lang, token) {
   return new Promise((ok) => {
     if (token !== falaToken) return ok();
+    // no iPad, falar logo depois de cancelar engole a frase: espera um instante
+    const espera = Math.max(0, 160 - (Date.now() - ultimoCancelamento));
+    setTimeout(() => ttsJa(text, lang, token, ok), espera);
+  });
+}
+function ttsJa(text, lang, token, ok) {
+  {
+    if (token !== falaToken) return ok();
     try {
       const u = new SpeechSynthesisUtterance(text);
       u.lang = IDIOMA[lang] || lang;
@@ -172,7 +193,7 @@ function tts(text, lang, token) {
     } catch {
       ok();
     }
-  });
+  }
 }
 // Fala a frase: usa a gravação da Lila quando existe; senão, a voz do aparelho.
 export function falar(text, lang = 'pt') {
@@ -238,18 +259,6 @@ export const sfx = {
   },
 };
 
-// Falas que já têm gravação da Lila
-export const ELOGIOS = [
-  'Isso mesmo!',
-  'Aê! Você acertou!',
-  'Mandou muito bem!',
-  'Muito bem, Stella!',
-  'Uau, você arrasou!',
-  'Isso! Você acertou!',
-  'Você é incrível!',
-  'Isso, você é uma estrela!',
-];
-export const DE_NOVO = ['Quase! Tenta de novo.', 'Ops! Olha de novo.', 'Quase lá! Tenta outra vez.'];
 let ultimoElogio = '';
 export function elogiar() {
   let e = pick(ELOGIOS);
@@ -365,7 +374,7 @@ export function cartao({ emoji, img, titulo, sub, cor, onclick, bloqueado, estre
     {
       class: 'xt-cartao' + (bloqueado ? ' bloqueado' : ''),
       style: { '--cor': cor },
-      onclick: bloqueado ? () => { sfx.errado(); falar('Essa ainda está trancadinha. Termine as anteriores primeiro!'); } : onclick,
+      onclick: bloqueado ? () => { sfx.errado(); falar(FALA_TRANCADA); } : onclick,
       'aria-label': titulo,
     },
     img ? h('img', { src: img, alt: '' }) : h('span', { class: 'xt-cartao-emoji' }, bloqueado ? '🔒' : emoji),
@@ -390,7 +399,7 @@ export function lila(texto, { lang = 'pt', fala, pose = 'listen', tamanho = 84 }
 // Rodadas de um jogo: barra de bolinhas, contagem de acertos de primeira, festa no final.
 // rodada(i, area) deve devolver uma Promise<boolean> (true = acertou de primeira).
 export async function jogo(raiz, opts) {
-  const { titulo, cor, voltar, rodadas, rodada, modulo, atividade, instrucao, langInstrucao = 'pt' } = opts;
+  const { titulo, cor, voltar, rodadas, rodada, modulo, atividade, instrucao, langInstrucao = 'pt', proxima, falarInstrucao = true } = opts;
   const { corpo, atualizarEstrelas } = tela(raiz, { titulo, cor, voltar });
   const bolinhas = h('div', { class: 'xt-bolinhas' }, Array.from({ length: rodadas }, () => h('i')));
   const area = h('div', { class: 'xt-area' });
@@ -398,7 +407,7 @@ export async function jogo(raiz, opts) {
   if (instrucao) {
     const l = lila(instrucao.texto, { lang: langInstrucao, fala: instrucao.fala });
     corpo.prepend(l);
-    falar(instrucao.fala || instrucao.texto, langInstrucao);
+    if (falarInstrucao) falar(instrucao.fala || instrucao.texto, langInstrucao);
   }
   let acertos = 0;
   const inicio = location.hash;
@@ -415,10 +424,10 @@ export async function jogo(raiz, opts) {
   const est = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : 1;
   progresso.registrar(modulo, atividade, est);
   atualizarEstrelas();
-  festa(raiz, { estrelas: est, deNovo: () => jogo(raiz, opts), voltar });
+  festa(raiz, { estrelas: est, deNovo: () => jogo(raiz, opts), voltar, proxima });
 }
 
-export function festa(raiz, { estrelas = 3, deNovo, voltar, frase }) {
+export function festa(raiz, { estrelas = 3, deNovo, voltar, frase, proxima }) {
   sfx.festa();
   const conf = h('div', { class: 'xt-confete' });
   for (let i = 0; i < 40; i++) {
@@ -437,8 +446,10 @@ export function festa(raiz, { estrelas = 3, deNovo, voltar, frase }) {
     h('div', { class: 'xt-festa-est' }, '⭐'.repeat(estrelas)),
     h('p', null, frase || `Muito bem, ${perfil.nome}!`),
     h('div', { class: 'xt-festa-botoes' },
-      deNovo ? h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); deNovo(); } }, '🔁 De novo') : null,
-      h('button', { class: 'xt-btn xt-btn-2', onclick: () => { caixa.remove(); voltar ? voltar() : voltarAoApp(); } }, 'Pronto ✓'),
+      deNovo ? h('button', { class: 'xt-btn xt-btn-2', onclick: () => { caixa.remove(); deNovo(); } }, '🔁 De novo') : null,
+      proxima
+        ? h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); proxima(); } }, 'Próxima etapa ▶')
+        : h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); voltar ? voltar() : voltarAoApp(); } }, 'Pronto ✓'),
     ),
   );
   raiz.append(caixa);
