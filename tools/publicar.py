@@ -130,7 +130,7 @@ if __name__ == '__main__':
     atualizar_sw()
     conferir()
     if '--push' in sys.argv:
-        subprocess.run(['git', 'add', '-A', 'index.html', 'sw.js', 'assets', 'extras', 'tools'], check=True)
+        subprocess.run(['git', 'add', '-A', '.'], check=True)
         msg = sys.argv[sys.argv.index('-m') + 1] if '-m' in sys.argv else 'novidades: letras na pauta, phonics da escola e música'
         msg += '\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
         subprocess.run(['git', 'commit', '-m', msg], check=True)
