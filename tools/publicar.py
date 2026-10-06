@@ -93,7 +93,11 @@ def atualizar_sw():
         sys.exit('ERRO: não achei a rota de navegação no sw.js — conferir à mão.')
     # tira entradas antigas de extras/ e regrava as revisões
     sw = re.sub(r',\{url:"extras/[^"]*",revision:"[0-9a-f]+"\}', '', sw)
-    sw = re.sub(r'\{url:"index\.html",revision:"[0-9a-f]+"\}', '{url:"index.html",revision:"%s"}' % md5('index.html'), sw)
+    # regrava a revisão de todo arquivo com revisão (index.html, registerSW.js, imagens...) conforme o conteúdo atual
+    def revisao(m):
+        url = m.group(1)
+        return '{url:"%s",revision:"%s"}' % (url, md5(url)) if os.path.exists(url) else m.group(0)
+    sw = re.sub(r'\{url:"([^"]+)",revision:"[0-9a-f]+"\}', revisao, sw)
     entradas = ''.join(',{url:"%s",revision:"%s"}' % (f, md5(f)) for f in arquivos_extras())
     marcador = '{url:"index.html",revision:"%s"}' % md5('index.html')
     sw = sw.replace(marcador, marcador + entradas, 1)
