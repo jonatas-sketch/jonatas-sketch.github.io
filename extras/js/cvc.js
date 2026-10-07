@@ -4,7 +4,7 @@
 // Tudo falado em inglês, do jeito da professora: "c… a… t… cat!" (sons gravados em /audio/fonemas).
 import {
   h, wait, shuffle, sample, pick, falar, falarVarias, sfx, progresso, tocarArquivo, temVoz,
-  irPara, tela, lila, jogo, festa, escolher, estilo, botaoOuvir,
+  irPara, missaoAtiva, tela, lila, jogo, festa, escolher, estilo, botaoOuvir,
 } from './core.js';
 import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS, ETAPAS, FAMILIAS_CVC, VOGAIS, ehVogal, figuraDe, DICIONARIO, ELOGIOS_EN, TENTE_EN, ESCRITA_EN, ALFABETO, NOME_EN } from './cvc-dados.js';
 import { FAMILIAS, familiaPrincipal } from './letras-dados.js';
@@ -52,7 +52,7 @@ function rodarEtapa(raiz, n) {
     palavras: u.palavras,
     comFinais: u.id === 'fim' || u.id === 'mix',
     voltar: MENU,
-    proxima: n < ETAPAS.length ? () => irPara('#/cvc/etapa/' + (n + 1)) : MENU,
+    proxima: missaoAtiva() ? () => irPara('#/missao') : n < ETAPAS.length ? () => irPara('#/cvc/etapa/' + (n + 1)) : MENU,
   };
   op.unidade = u.id;
   return { sons, intro, aprender, completar, montar, ler, qual, escrever }[e.tipo](raiz, op);

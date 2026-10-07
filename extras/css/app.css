@@ -150,3 +150,6 @@ button { font-family: inherit; color: inherit; border: none; background: none; c
   .xt-palavra { font-size: 2.1rem; }
   .xt-emoji-grande { font-size: 3.4rem; }
 }
+
+/* missão do dia: botão para voltar */
+.xt-missao-chip { flex: none; background: #F2B544; color: #fff; border-radius: 999px; padding: 6px 12px; font-weight: 800; box-shadow: var(--sombra); }

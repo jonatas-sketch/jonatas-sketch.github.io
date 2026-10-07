@@ -3,7 +3,7 @@
 // Tudo o que a Lila fala está em letras-dados.js (FALAS), para gravar na voz dela.
 import {
   h, s, wait, shuffle, pick, sample, falar, falarVarias, sfx, elogiar, tentarDeNovo, progresso,
-  irPara, tela, cartao, lila, jogo, festa, escolher, estilo, botaoOuvir,
+  irPara, missaoAtiva, tela, cartao, lila, jogo, festa, escolher, estilo, botaoOuvir,
 } from './core.js';
 import { FALA_TRANCADA } from './falas-core.js';
 import {
@@ -51,7 +51,7 @@ function rodarEtapa(raiz, n) {
     chave: chaveEtapa(n),
     titulo: `Etapa ${n} · ${e.titulo}`,
     voltar: MENU,
-    proxima: n < ETAPAS.length ? () => irPara('#/letras/etapa/' + (n + 1)) : MENU,
+    proxima: missaoAtiva() ? () => irPara('#/missao') : n < ETAPAS.length ? () => irPara('#/letras/etapa/' + (n + 1)) : MENU,
     letras: e.letras,
     foco: e.foco,
     palavras: e.palavras,

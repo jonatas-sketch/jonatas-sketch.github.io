@@ -30,7 +30,7 @@ function vozHash(text, lang) {
 }
 
 async function juntarFalas() {
-  const modulos = ['falas-core', 'letras-dados', 'cvc-dados', 'ingles-dados', 'musica-dados'];
+  const modulos = ['falas-core', 'missao-dados', 'letras-dados', 'cvc-dados', 'numeros-dados', 'ingles-dados', 'musica-dados'];
   const todas = [];
   for (const m of modulos) {
     const mod = await import(join(RAIZ, 'extras/js', m + '.js'));

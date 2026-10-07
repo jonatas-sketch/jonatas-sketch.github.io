@@ -1,0 +1,23 @@
+/* Números */
+.nu-niveis { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.nu-nivel { display: flex; flex-direction: column; align-items: center; padding: 10px 18px; border-radius: 18px; background: #fff; box-shadow: var(--sombra); border: 3px solid transparent; }
+.nu-nivel span { font-size: 1.8rem; }
+.nu-nivel b { font-size: 1.1rem; }
+.nu-nivel.atual { border-color: #E8865A; }
+.nu-nivel.fechado { opacity: 0.45; }
+.nu-cartas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 100%; }
+.nu-carta { min-width: 0; min-height: 96px; padding: 8px 4px; border: 3px solid transparent; }
+.nu-carta b { font-family: "Andika", sans-serif; font-size: 2.6rem; line-height: 1; color: #E8865A; }
+.nu-carta small { font-family: "Andika", sans-serif; font-size: 0.95rem; color: #8a7563; }
+.nu-carta.soando { border-color: #ffd54f; transform: scale(1.06); }
+.nu-quadro { padding: 14px; }
+.nu-coisas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 10px; }
+.nu-coisa { font-size: 2.6rem; line-height: 1.1; text-align: center; transition: transform 0.15s; }
+.nu-coisa.contada { transform: scale(1.18); filter: drop-shadow(0 0 6px #ffd54f); }
+.nu-op { min-width: 110px; min-height: 110px; }
+.nu-op b { font-family: "Andika", sans-serif; font-size: 3.4rem; color: var(--ink); }
+@media (max-width: 520px) {
+  .nu-coisa { font-size: 2rem; }
+  .nu-carta b { font-size: 2rem; }
+  .nu-op { min-width: 84px; min-height: 84px; }
+}

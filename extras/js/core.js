@@ -307,6 +307,7 @@ export const progresso = {
     if (estrelas > antes) this.set(k, estrelas);
     this.set(`${modulo}.ultima`, atividade);
     this.somarEstrelas(estrelas);
+    conferirMissao(modulo, atividade);
   },
   feito(modulo, atividade) { return this.get(`${modulo}.feito.${atividade}`, 0); },
   liberarTudo() { return this.get('pais.liberarTudo', false); },
@@ -315,6 +316,40 @@ export const progresso = {
     try { localStorage.removeItem(CHAVE); } catch {}
   },
 };
+
+// ---------- Missão do dia ----------
+// O passo ativo fica na aba (sessionStorage). Quando a atividade certa termina (registrar), o passo
+// fica feito e a festa mostra o botão de voltar para a missão.
+const CHAVE_PASSO = 'stella-missao-passo';
+export const hoje = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+export function missaoAtiva() {
+  try { return sessionStorage.getItem(CHAVE_PASSO); } catch { return null; }
+}
+export function iniciarPasso(id) {
+  try { sessionStorage.setItem(CHAVE_PASSO, id); } catch {}
+}
+export function sairDaMissao() {
+  try { sessionStorage.removeItem(CHAVE_PASSO); } catch {}
+}
+export function passoFeito() {
+  const id = missaoAtiva();
+  const m = progresso.get(`missao.${hoje()}`, null);
+  return !!(id && m && m.feitos.includes(id));
+}
+function conferirMissao(modulo, atividade) {
+  const id = missaoAtiva();
+  if (!id) return;
+  const m = progresso.get(`missao.${hoje()}`, null);
+  const p = m && m.passos.find((x) => x.id === id);
+  if (!p || p.modulo !== modulo || !new RegExp(p.padrao).test(atividade)) return;
+  if (!m.feitos.includes(id)) {
+    m.feitos.push(id);
+    progresso.set(`missao.${hoje()}`, m);
+  }
+}
 
 // Nome da criança e do mascote vêm do perfil do app (só leitura)
 export const perfil = { nome: 'Stella', mascote: 'Lila' };
@@ -358,6 +393,7 @@ export function voltarAoApp() {
 export function tela(raiz, { titulo, cor = 'var(--terracota)', voltar, fundo }) {
   raiz.replaceChildren();
   const estrelas = h('span', { class: 'xt-estrelas' }, '⭐ ', String(progresso.estrelas()));
+  const naMissao = missaoAtiva() && !location.hash.startsWith('#/missao');
   const topo = h(
     'header',
     { class: 'xt-topo' },
@@ -367,6 +403,7 @@ export function tela(raiz, { titulo, cor = 'var(--terracota)', voltar, fundo }) 
       onclick: () => (voltar ? voltar() : voltarAoApp()),
     }, voltar ? '⬅' : '🏠'),
     h('h1', { style: { color: cor } }, titulo),
+    naMissao ? h('button', { class: 'xt-missao-chip', onclick: () => irPara('#/missao'), 'aria-label': 'Voltar para a missão' }, '⭐ Missão') : null,
     estrelas,
   );
   const corpo = h('main', { class: 'xt-corpo' });
@@ -455,7 +492,9 @@ export function festa(raiz, { estrelas = 3, deNovo, voltar, frase, proxima, lang
     h('p', null, frase || `Muito bem, ${perfil.nome}!`),
     h('div', { class: 'xt-festa-botoes' },
       deNovo ? h('button', { class: 'xt-btn xt-btn-2', onclick: () => { caixa.remove(); deNovo(); } }, lang === 'en' ? '🔁 Again' : '🔁 De novo') : null,
-      proxima
+      passoFeito()
+        ? h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); irPara('#/missao'); } }, '⭐ Voltar à missão')
+        : proxima
         ? h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); proxima(); } }, lang === 'en' ? 'Next ▶' : 'Próxima etapa ▶')
         : h('button', { class: 'xt-btn', onclick: () => { caixa.remove(); voltar ? voltar() : voltarAoApp(); } }, lang === 'en' ? 'Done ✓' : 'Pronto ✓'),
     ),

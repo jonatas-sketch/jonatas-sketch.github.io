@@ -38,6 +38,7 @@ def botao(estilo_hello, destino, rotulo, cor, emoji):
 BOTOES_INICIO = [
     ('/extras/#/letras', 'Letras na Pauta', '#E0A21F', '🦒'),
     ('/extras/#/cvc', 'Palavras CVC', '#2BAE9C', '🔤'),
+    ('/extras/#/numeros', 'Números', '#E8865A', '🔢'),
     ('/extras/#/musica', 'Música com a Lila', '#7F77DD', '🎹'),
 ]
 
@@ -60,6 +61,17 @@ def colocar_botoes():
         novo_botao = botao(estilo, destino, rotulo, cor, emoji)
         js = js[:fim_anterior] + novo_botao + js[fim_anterior:]
         fim_anterior += len(novo_botao)
+    # Missão do dia da Lila: botão no topo, antes da Trilha de Leitura
+    if '/extras/#/missao' not in js:
+        t = re.search(r'\(0,k\.jsx\)\(`button`,\{onClick:\w+,"aria-label":`Trilha de Leitura`', js)
+        if not t:
+            sys.exit('ERRO: não achei o botão Trilha de Leitura no bundle — conferir à mão.')
+        missao = ('(0,k.jsx)(`button`,{onClick:()=>{location.href=`/extras/#/missao`},"aria-label":`Missão do dia da Lila`,'
+                  'style:' + estilo.replace('background:`#4DA6E0`', 'background:`linear-gradient(135deg,#F2B544,#E8865A)`').replace('fontSize:`1.2rem`', 'fontSize:`1.35rem`') +
+                  ',children:`⭐ Missão do dia da Lila`}),')
+        js = js[:t.start()] + missao + js[t.start():]
+    # a missão antiga da trilha vira "Leitura de hoje" (para não ter duas missões)
+    js = js.replace('children:`Missão de hoje!`', 'children:`Leitura de hoje!`')
     # tela do Inglês: cartão "Phonics da escola" antes da lista de temas
     if '/extras/#/ingles' not in js:
         alvo = 'children:`Minha voz em inglês`}),(0,k.jsx)(`span`,{style:{fontWeight:800,color:`#C98A5E`},children:`▶`})]})'

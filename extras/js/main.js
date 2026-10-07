@@ -7,6 +7,8 @@ const MODULOS = {
   ingles: () => import('./ingles.js'),
   musica: () => import('./musica.js'),
   cvc: () => import('./cvc.js'),
+  numeros: () => import('./numeros.js'),
+  missao: () => import('./missao.js'),
 };
 
 async function rota() {
@@ -19,7 +21,7 @@ async function rota() {
       const m = await MODULOS[mod]();
       await m.abrir(raiz, resto);
       // no menu de cada módulo, o acesso dos pais (liberar níveis, ver progresso)
-      if (!resto.length) raiz.querySelector('.xt-corpo')?.append(botaoPais());
+      if (!resto.length && mod !== 'missao') raiz.querySelector('.xt-corpo')?.append(botaoPais());
       return;
     } catch (e) {
       console.error(e);
@@ -35,8 +37,10 @@ function inicio() {
   corpo.append(
     lila(`Oi, ${perfil.nome}! O que vamos aprender hoje?`),
     h('div', { class: 'xt-grade' },
+      cartao({ emoji: '⭐', titulo: 'Missão do dia', sub: '5 partes por dia', cor: '#F2B544', onclick: () => irPara('#/missao') }),
       cartao({ emoji: '🦒', titulo: 'Letras na Pauta', sub: 'Girafa, tartaruga e macaco', cor: '#E0A21F', onclick: () => irPara('#/letras') }),
       cartao({ emoji: '🔤', titulo: 'Palavras CVC', sub: 'Ler e escrever cat, dog, sun…', cor: '#2BAE9C', onclick: () => irPara('#/cvc') }),
+      cartao({ emoji: '🔢', titulo: 'Números', sub: 'Contar em inglês', cor: '#E8865A', onclick: () => irPara('#/numeros') }),
       cartao({ emoji: '🇬🇧', titulo: 'Phonics da escola', sub: 'Ler em inglês', cor: '#4DA6E0', onclick: () => irPara('#/ingles') }),
       cartao({ emoji: '🎹', titulo: 'Música com a Lila', sub: 'Notas do piano', cor: '#A98FE0', onclick: () => irPara('#/musica') }),
     ),
@@ -64,6 +68,7 @@ const NOMES = {
   ingles: 'Phonics da escola',
   musica: 'Música com a Lila',
   cvc: 'Palavras CVC',
+  numeros: 'Números',
 };
 
 function pais() {

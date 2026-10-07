@@ -1,0 +1,20 @@
+/* Missão do dia */
+.ms-barra { position: relative; width: 100%; height: 26px; border-radius: 999px; background: #efe1cc; overflow: hidden; }
+.ms-barra i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #F2B544, #8FB58A); border-radius: 999px; transition: width 0.4s; }
+.ms-barra span { position: relative; display: block; text-align: center; font-weight: 800; line-height: 26px; }
+.ms-passo {
+  width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; padding: 14px 18px;
+  border-radius: 22px; background: #fff; box-shadow: var(--sombra); border: 4px solid transparent;
+}
+.ms-passo:active { transform: translateY(3px); }
+.ms-num { width: 42px; height: 42px; border-radius: 50%; background: var(--cor); color: #fff; font-weight: 800; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; flex: none; }
+.ms-emoji { font-size: 2.4rem; flex: none; }
+.ms-txt { flex: 1; display: flex; flex-direction: column; line-height: 1.15; }
+.ms-txt b { font-size: 1.3rem; font-weight: 800; }
+.ms-txt small { font-size: 0.98rem; color: #8a7563; font-weight: 600; }
+.ms-acao { font-size: 1.8rem; color: var(--cor); flex: none; }
+.ms-passo.vez { border-color: var(--cor); animation: lt-respira 2.4s ease-in-out infinite; }
+.ms-passo.feito { background: #f4fbf3; }
+.ms-passo.feito .ms-num { background: var(--salvia); }
+.ms-total { font-weight: 800; color: var(--madeira); }
+@keyframes lt-respira { 50% { transform: scale(1.015); } }
