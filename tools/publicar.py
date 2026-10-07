@@ -88,6 +88,9 @@ def colocar_botoes():
 
 def arquivos_extras():
     lista = []
+    # sons das letras (pequenos): vão para o cache offline junto com as novidades
+    if os.path.isdir('audio/fonemas'):
+        lista += ['audio/fonemas/' + f for f in sorted(os.listdir('audio/fonemas')) if f.endswith('.mp3')]
     for pasta, subpastas, arquivos in os.walk('extras'):
         subpastas[:] = [d for d in subpastas if not d.startswith('_')]
         for a in sorted(arquivos):
@@ -107,7 +110,7 @@ def atualizar_sw():
     elif rota_nova not in sw:
         sys.exit('ERRO: não achei a rota de navegação no sw.js — conferir à mão.')
     # tira entradas antigas de extras/ e regrava as revisões
-    sw = re.sub(r',\{url:"extras/[^"]*",revision:"[0-9a-f]+"\}', '', sw)
+    sw = re.sub(r',\{url:"(?:extras|audio/fonemas)/[^"]*",revision:"[0-9a-f]+"\}', '', sw)
     # regrava a revisão de todo arquivo com revisão (index.html, registerSW.js, imagens...) conforme o conteúdo atual
     def revisao(m):
         url = m.group(1)

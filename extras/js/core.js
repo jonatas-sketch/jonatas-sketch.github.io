@@ -209,6 +209,13 @@ export function falar(text, lang = 'pt') {
   }
   return tts(text, lang, token);
 }
+// Toca um arquivo de som (ex.: o som de uma letra) — para no meio se outra fala começar
+export function tocarArquivo(url) {
+  pararFala();
+  const token = falaToken;
+  return loadBuffer(url).then((buf) => tocarBuffer(buf, token)).catch(() => {});
+}
+
 export async function falarVarias(lista) {
   const minha = ++sequencia;
   for (const [txt, lang] of lista) {

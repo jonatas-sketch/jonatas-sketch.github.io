@@ -13,11 +13,10 @@ import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { lerChave, api, descobrirVoz } from './elevenlabs.mjs';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PASTA_VOZ = join(RAIZ, 'audio/voz');
-const ARQ_CHAVE = join(homedir(), 'Documents/Claude/Stella/.chaves/elevenlabs.txt');
-const API = 'https://api.elevenlabs.io/v1';
 
 // mesmo hash do app (core.js / app principal)
 function vozHash(text, lang) {
@@ -53,34 +52,6 @@ async function juntarFalas() {
   });
 }
 
-async function api(caminho, chave, opcoes = {}) {
-  for (let tentativa = 0; tentativa < 5; tentativa++) {
-    const r = await fetch(API + caminho, { ...opcoes, headers: { 'xi-api-key': chave, ...(opcoes.headers || {}) } });
-    if (r.status === 429 || r.status >= 500) {
-      await new Promise((ok) => setTimeout(ok, 2000 * (tentativa + 1)));
-      continue;
-    }
-    if (!r.ok) throw new Error(`${caminho} → ${r.status} ${(await r.text()).slice(0, 300)}`);
-    return r;
-  }
-  throw new Error(`${caminho} → muitas tentativas`);
-}
-
-// procura no histórico a gravação de falas que já existem no app para copiar voz/modelo/ajustes
-async function descobrirVoz(chave, conhecidas) {
-  if (process.env.VOZ_ID) return { voice_id: process.env.VOZ_ID, model_id: process.env.MODELO || 'eleven_multilingual_v2', settings: null };
-  let depois = '';
-  for (let pagina = 0; pagina < 40; pagina++) {
-    const r = await api(`/history?page_size=1000${depois ? '&start_after_history_item_id=' + depois : ''}`, chave);
-    const j = await r.json();
-    const achado = j.history.find((it) => conhecidas.has(it.text?.trim()));
-    if (achado) return achado;
-    if (!j.has_more || !j.history.length) break;
-    depois = j.last_history_item_id || j.history.at(-1).history_item_id;
-  }
-  return null;
-}
-
 async function main() {
   const gerar = process.argv.includes('--gerar');
   const existentes = new Set(readdirSync(PASTA_VOZ).filter((f) => f.endsWith('.mp3')).map((f) => f.slice(0, -4)));
@@ -98,21 +69,11 @@ async function main() {
   console.log(`Caracteres a gerar: ${total}`);
   if (!gerar || !faltam.length) return;
 
-  if (!existsSync(ARQ_CHAVE)) {
-    console.error(`Falta a chave do ElevenLabs em ${ARQ_CHAVE}`);
-    process.exit(1);
-  }
-  const chave = readFileSync(ARQ_CHAVE, 'utf8').trim();
+  const chave = lerChave();
   // falas já gravadas no app (para achar a voz da Lila no histórico)
   const conhecidas = new Set(falas.filter((f) => existentes.has(f.hash)).map((f) => f.texto));
   conhecidas.add('Muito bem, Stella!');
   const ref = await descobrirVoz(chave, conhecidas);
-  if (!ref) {
-    const r = await api('/voices', chave);
-    const vozes = (await r.json()).voices.map((v) => `${v.voice_id}  ${v.name} (${v.category})`);
-    console.error('Não achei a voz da Lila no histórico. Vozes da conta (rode de novo com VOZ_ID=...):\n' + vozes.join('\n'));
-    process.exit(2);
-  }
   const modelo = ref.model_id || 'eleven_multilingual_v2';
   const ajustes = ref.settings || undefined;
   console.log(`Voz: ${ref.voice_id} · modelo: ${modelo}${ref.text ? ` · achada pela fala "${ref.text}"` : ''}`);

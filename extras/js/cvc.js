@@ -3,7 +3,7 @@
 // ouça e monte · leia e ache · qual palavra? · escreva na pauta.
 // Só palavras inteiras são faladas: o som puro de cada letra fica com o app da professora.
 import {
-  h, wait, shuffle, sample, falar, falarVarias, sfx, elogiar, progresso,
+  h, wait, shuffle, sample, falar, falarVarias, sfx, elogiar, progresso, tocarArquivo,
   irPara, tela, lila, jogo, festa, escolher, estilo, botaoOuvir,
 } from './core.js';
 import { FALA_TRANCADA } from './falas-core.js';
@@ -11,6 +11,7 @@ import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS
 import { FAMILIAS, familiaPrincipal, FALAS as FALAS_LETRAS } from './letras-dados.js';
 import { pautaSVG, conteudo, palavraG, larguraPalavra } from './pauta.js';
 import { montarTracado, montarLivre, avisador } from './escrita.js';
+import { temSom, urlSom } from './fonemas.js';
 
 const MOD = 'cvc';
 const COR = '#2BAE9C';
@@ -121,18 +122,21 @@ function montar(raiz, op) {
       const sobra = sample(LETRAS_ESCOLA.filter((l) => !gs.includes(l)), 2);
       let pos = 0;
       let primeira = true;
-      const casas = gs.map(() => h('div', { class: 'cv-casa' }));
+      const caixas = caixasCVC(gs, { vazias: gs.map((_, k) => k) });
       const pronta = h('div', { class: 'cv-pronta' });
       const pecas = shuffle([...gs, ...sobra]).map((g) => {
         const b = h('button', { class: 'cv-peca', 'aria-label': g }, pecaSVG(g));
         b.addEventListener('click', () => {
           if (b.disabled || pos >= gs.length) return;
           if (g === gs[pos]) {
-            sfx.pop();
             b.disabled = true;
             b.classList.add('usada');
-            casas[pos].replaceChildren(pecaSVG(g));
-            casas[pos].classList.add('cheia');
+            const casa = caixas.casa(pos);
+            casa.replaceChildren(pecaSVG(g));
+            casa.classList.add('cheia');
+            // ao colocar a letra, ouve o som dela (quando já gravado)
+            if (temSom(g)) tocarArquivo(urlSom(g));
+            else sfx.pop();
             pos++;
             if (pos === gs.length) terminar();
           } else {
@@ -149,15 +153,16 @@ function montar(raiz, op) {
       });
       async function terminar() {
         sfx.certo();
+        await wait(350);
+        await soletrar(p.w, caixas);
         pronta.replaceChildren(palavraNaPauta(p.w));
-        await dizer(p.w);
         elogiar();
         await wait(900);
         ok(primeira);
       }
       area.append(
         h('div', { class: 'cv-topo' }, h('div', { class: 'xt-ficha cv-figura' }, h('span', { class: 'xt-emoji-grande' }, p.e)), botaoOuvir(() => dizer(p.w))),
-        h('div', { class: 'cv-casas' }, casas),
+        caixas,
         h('div', { class: 'cv-pecas' }, pecas),
         pronta,
       );
@@ -192,16 +197,41 @@ function caixasCVC(gs, { vazias = [], rotulos = false, animar = false } = {}) {
   return el;
 }
 
+// "c… a… t… cat": cada caixinha acende com o som da letra, depois a palavra inteira.
+// Sem o arquivo do som (ainda não gravado), a caixinha só acende em silêncio.
+let soletrando = 0;
+async function soletrar(w, caixas) {
+  const minha = ++soletrando;
+  const gs = grafemas(w);
+  await wait(250);
+  for (let i = 0; i < gs.length; i++) {
+    if (minha !== soletrando || !caixas.isConnected) return;
+    const casa = caixas.casa(i);
+    casa.classList.add('cv-soando');
+    if (temSom(gs[i])) await tocarArquivo(urlSom(gs[i]));
+    else await wait(420);
+    await wait(260);
+    casa.classList.remove('cv-soando');
+  }
+  if (minha !== soletrando || !caixas.isConnected) return;
+  caixas.classList.add('cv-junta');
+  await dizer(w);
+  caixas.classList.remove('cv-junta');
+}
+// botão para ouvir de novo devagar (letra por letra)
+const botaoSoletrar = (w, caixas) => h('button', { class: 'xt-ouvir cv-devagar', 'aria-label': 'Ouvir letra por letra', onclick: () => soletrar(w, caixas) }, '🐢');
+
 // ---------- ⭐ O que é uma palavra CVC? (ensina antes de pedir) ----------
 function intro(raiz, op) {
   const passos = [
     (corpo) => {
       corpo.append(
         lila('Uma palavra CVC tem três pedacinhos: consoante, vogal e consoante.', { fala: FALAS.intro1 }),
-        h('div', { class: 'cv-topo' }, h('div', { class: 'xt-ficha cv-figura' }, h('span', { class: 'xt-emoji-grande' }, '🐱')), botaoOuvir(() => dizer('cat'))),
-        caixasCVC(grafemas('cat'), { rotulos: true, animar: true }),
+        h('div', { class: 'cv-topo' }, h('div', { class: 'xt-ficha cv-figura' }, h('span', { class: 'xt-emoji-grande' }, '🐱'))),
       );
-      falarVarias([[FALAS.intro1, 'pt'], ['cat', 'en']]);
+      const caixas = caixasCVC(grafemas('cat'), { rotulos: true, animar: true });
+      corpo.append(caixas, h('div', { class: 'lt-botoes' }, botaoSoletrar('cat', caixas)));
+      falar(FALAS.intro1).then(() => soletrar('cat', caixas));
     },
     (corpo) => {
       corpo.append(
@@ -215,8 +245,9 @@ function intro(raiz, op) {
       corpo.append(lila('Toda palavrinha CVC tem uma vogal no meio!', { fala: FALAS.intro3 }));
       for (const w of ['cat', 'dog', 'sun']) {
         const p = figuraDe(w);
-        corpo.append(h('button', { class: 'xt-ficha cv-exemplo', onclick: () => dizer(w), 'aria-label': w },
-          h('span', { class: 'cv-exemplo-fig' }, p.e), caixasCVC(grafemas(w))));
+        const caixas = caixasCVC(grafemas(w));
+        corpo.append(h('button', { class: 'xt-ficha cv-exemplo', onclick: () => soletrar(w, caixas), 'aria-label': w },
+          h('span', { class: 'cv-exemplo-fig' }, p.e), caixas));
       }
       falar(FALAS.intro3);
     },
@@ -271,9 +302,10 @@ function aprender(raiz, op) {
       figura.replaceChildren(h('span', { class: 'xt-emoji-grande' }, figuraDe(w).e), h('b', { class: 'cv-palavra-txt' }, w));
       b.classList.add('vista');
       vistas.add(w);
-      dizer(w);
+      soletrar(w, caixas);
       if (vistas.size === palavras.length && !seguir.childElementCount) {
         setTimeout(() => {
+          if (!seguir.isConnected) return;
           falar(FALAS.familiaFim);
           seguir.append(h('button', { class: 'xt-btn', onclick: () => {
             f++;
@@ -281,7 +313,7 @@ function aprender(raiz, op) {
             progresso.registrar(MOD, op.chave, 3);
             festa(raiz, { estrelas: 3, voltar: op.voltar, proxima: op.proxima });
           } }, f < familias.length - 1 ? 'Próxima família ▶' : 'Terminei! ▶'));
-        }, 900);
+        }, 3200);
       }
     }
     corpo.append(dica, h('p', { class: 'cv-familia-tit' }, 'Família do ', h('b', null, '_' + rima)), caixas, figura, h('div', { class: 'cv-pecas' }, letras), seguir);
@@ -290,7 +322,7 @@ function aprender(raiz, op) {
       falar(FALAS.familia).then(async () => {
         if (!letras[0].isConnected) return;
         escolherInicio(palavras[0], grafemas(palavras[0])[0], letras[0]);
-        await wait(1400);
+        await wait(3200);
         if (letras[0].isConnected) dica.trocar('Agora é a sua vez! Toque nas letrinhas.', FALAS.familiaToque);
       });
     } else {
@@ -333,8 +365,9 @@ function completar(raiz, op) {
           const casa = caixas.casa(k);
           casa.replaceChildren(pecaSVG(certo));
           casa.classList.add('cheia', 'cv-pula');
-          await dizer(p.w);
+          await soletrar(p.w, caixas);
           elogiar();
+          await wait(600);
         },
         aoErrar: () => dizer(p.w),
       });
@@ -369,11 +402,21 @@ function ler(raiz, op) {
         certo: q.w === p.w,
         el: h('button', { class: 'xt-ficha cv-op-figura', 'aria-label': q.w }, h('span', { class: 'xt-emoji-grande' }, q.e)),
       }));
+      const premio = h('div', { class: 'cv-premio' });
       area.append(
         h('div', { class: 'cv-topo' }, h('div', { class: 'xt-ficha cv-palavra' }, palavraNaPauta(p.w, { cores: false })), botaoOuvir(() => dizer(p.w))),
         h('div', { class: 'xt-opcoes' }, opcoes.map((o) => o.el)),
+        premio,
       );
-      return escolher(opcoes, { aoAcertar: () => dizer(p.w), falarElogio: false });
+      return escolher(opcoes, {
+        falarElogio: false,
+        aoAcertar: async () => {
+          const caixas = caixasCVC(grafemas(p.w));
+          premio.replaceChildren(caixas);
+          await soletrar(p.w, caixas);
+          await wait(500);
+        },
+      });
     },
   });
 }
@@ -414,7 +457,14 @@ function qual(raiz, op) {
       if (i === 0) falarVarias([[FALAS.qual, 'pt'], [p.w, 'en']]);
       else dizer(p.w);
       return escolher(opcoes, {
-        aoAcertar: () => premio.replaceChildren(h('span', { class: 'lt-premio-emoji' }, p.e)),
+        falarElogio: false,
+        aoAcertar: async () => {
+          const caixas = caixasCVC(grafemas(p.w));
+          premio.replaceChildren(h('span', { class: 'lt-premio-emoji' }, p.e), caixas);
+          await soletrar(p.w, caixas);
+          elogiar();
+          await wait(500);
+        },
       });
     },
   });

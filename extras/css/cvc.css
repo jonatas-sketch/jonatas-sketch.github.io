@@ -78,3 +78,12 @@
 .cv-peca.vista::after { content: "✓"; position: absolute; top: 4px; right: 8px; color: var(--salvia); font-weight: 800; }
 .cv-peca { position: relative; }
 .cv-seguir { margin-top: 6px; }
+
+/* "c… a… t… cat": a caixinha acende no som da letra; no fim as três juntas */
+.cv-casa.cv-soando { transform: translateY(-10px) scale(1.12); box-shadow: 0 0 0 6px #ffe082, var(--sombra); background: #fffde7; transition: transform 0.15s; }
+.cv-casas.cv-junta .cv-casa { animation: cv-junta 0.6s ease-in-out; border-color: var(--salvia); }
+@keyframes cv-junta { 50% { transform: scale(1.1); } }
+.cv-casa { transition: transform 0.15s, box-shadow 0.15s; }
+.cv-devagar { background: var(--salvia); }
+.cv-premio { min-height: 150px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.lt-premio .cv-casas .cv-casa, .cv-premio .cv-casa { width: 84px; height: 104px; }
