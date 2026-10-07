@@ -1,0 +1,52 @@
+/* Palavras CVC */
+.cv-continuar { background: linear-gradient(135deg, #2BAE9C, #3E92CC); }
+.cv-exemplos { font-weight: 600; color: #a08a74; font-size: 0.9rem; }
+.cv-topo { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.cv-figura { min-width: 150px; min-height: 140px; }
+.cv-figura .xt-emoji-grande { font-size: 5rem; }
+.cv-figura-peq { min-width: 110px; min-height: 96px; }
+.cv-figura-peq .xt-emoji-grande { font-size: 3.4rem; }
+.cv-pauta { height: 150px; width: auto; max-width: 86vw; display: block; }
+.cv-palavra { padding: 8px 12px; }
+.cv-op-figura { min-width: 140px; min-height: 130px; }
+.cv-op-figura .xt-emoji-grande { font-size: 4.6rem; }
+.cv-coluna { flex-direction: column; align-items: center; }
+.cv-coluna .cv-pauta { height: 120px; }
+
+/* montar a palavra */
+.cv-casas { display: flex; gap: 12px; justify-content: center; }
+.cv-casa {
+  width: 96px; height: 120px; border-radius: 18px; border: 4px dashed #d9c3a3; background: #fffaf2;
+  display: flex; align-items: center; justify-content: center;
+}
+.cv-casa.cheia { border-style: solid; border-color: var(--salvia); background: #fff; animation: xt-pulo 0.4s; }
+.cv-pecas { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 560px; }
+.cv-peca {
+  width: 92px; height: 112px; border-radius: 18px; background: #fff; box-shadow: var(--sombra);
+  display: flex; align-items: center; justify-content: center;
+}
+.cv-peca:active { transform: translateY(3px); }
+.cv-peca.usada { opacity: 0.25; box-shadow: none; }
+.cv-peca-svg { height: 92px; width: auto; max-width: 84px; }
+.cv-casa .cv-peca-svg { height: 98px; max-width: 88px; }
+.cv-pronta { min-height: 150px; display: flex; align-items: center; justify-content: center; }
+
+@media (max-width: 520px) {
+  .cv-casa { width: 74px; height: 96px; }
+  .cv-peca { width: 70px; height: 88px; }
+  .cv-peca-svg { height: 72px; max-width: 64px; }
+  .cv-casa .cv-peca-svg { height: 78px; max-width: 68px; }
+  .cv-pauta { height: 110px; }
+  .cv-figura .xt-emoji-grande { font-size: 3.8rem; }
+}
+
+@media (min-width: 700px) {
+  .cv-pauta { height: 190px; }
+  .cv-coluna .cv-pauta { height: 150px; }
+  .cv-op-figura { min-width: 170px; min-height: 160px; }
+  .cv-op-figura .xt-emoji-grande { font-size: 5.6rem; }
+  .cv-casa { width: 116px; height: 144px; }
+  .cv-peca { width: 108px; height: 132px; }
+  .cv-peca-svg { height: 110px; max-width: 100px; }
+  .cv-casa .cv-peca-svg { height: 118px; max-width: 106px; }
+}

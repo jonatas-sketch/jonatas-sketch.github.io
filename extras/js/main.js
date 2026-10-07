@@ -6,6 +6,7 @@ const MODULOS = {
   letras: () => import('./letras.js'),
   ingles: () => import('./ingles.js'),
   musica: () => import('./musica.js'),
+  cvc: () => import('./cvc.js'),
 };
 
 async function rota() {
@@ -35,6 +36,7 @@ function inicio() {
     lila(`Oi, ${perfil.nome}! O que vamos aprender hoje?`),
     h('div', { class: 'xt-grade' },
       cartao({ emoji: '🦒', titulo: 'Letras na Pauta', sub: 'Girafa, tartaruga e macaco', cor: '#E0A21F', onclick: () => irPara('#/letras') }),
+      cartao({ emoji: '🔤', titulo: 'Palavras CVC', sub: 'Ler e escrever cat, dog, sun…', cor: '#2BAE9C', onclick: () => irPara('#/cvc') }),
       cartao({ emoji: '🇬🇧', titulo: 'Phonics da escola', sub: 'Ler em inglês', cor: '#4DA6E0', onclick: () => irPara('#/ingles') }),
       cartao({ emoji: '🎹', titulo: 'Música com a Lila', sub: 'Notas do piano', cor: '#A98FE0', onclick: () => irPara('#/musica') }),
     ),
@@ -61,6 +63,7 @@ const NOMES = {
   letras: 'Letras na Pauta',
   ingles: 'Phonics da escola',
   musica: 'Música com a Lila',
+  cvc: 'Palavras CVC',
 };
 
 function pais() {

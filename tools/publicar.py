@@ -15,7 +15,6 @@ import hashlib, os, re, subprocess, sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(RAIZ)
-MARCA = '/extras/#/letras'
 
 
 def md5(caminho):
@@ -35,31 +34,47 @@ def botao(estilo_hello, destino, rotulo, cor, emoji):
             f'style:{estilo},children:`{emoji} {rotulo}`}})')
 
 
+# botões da tela inicial do app (destino, rótulo, cor, emoji), na ordem em que aparecem
+BOTOES_INICIO = [
+    ('/extras/#/letras', 'Letras na Pauta', '#E0A21F', '🦒'),
+    ('/extras/#/cvc', 'Palavras CVC', '#2BAE9C', '🔤'),
+    ('/extras/#/musica', 'Música com a Lila', '#7F77DD', '🎹'),
+]
+
+
 def colocar_botoes():
     nome = bundle_atual()
     js = open('assets/' + nome, encoding='utf-8').read()
-    if MARCA in js:
-        print('botões: já estão no app (', nome, ')')
-        return nome
-    # tela inicial: depois do botão "Hello! Inglês"
+    original = js
+    # tela inicial: os botões das novidades vêm depois do "Hello! Inglês", na ordem de BOTOES_INICIO
     m = re.search(r'\(0,k\.jsx\)\(`button`,\{onClick:\w+,"aria-label":`Hello Inglês`,style:(\{.*?\}),children:`Hello! Inglês 🇬🇧`\}\)', js)
     if not m:
         sys.exit('ERRO: não achei o botão Hello! Inglês no bundle — o app mudou, conferir à mão.')
     estilo = m.group(1)
-    novos = (botao(estilo, '/extras/#/letras', 'Letras na Pauta', '#E0A21F', '🦒')
-             + botao(estilo, '/extras/#/musica', 'Música com a Lila', '#7F77DD', '🎹'))
-    js = js[:m.end()] + novos + js[m.end():]
+    fim_anterior = m.end()
+    for destino, rotulo, cor, emoji in BOTOES_INICIO:
+        ja = re.search(r',\(0,k\.jsx\)\(`button`,\{onClick:\(\)=>\{location\.href=`' + re.escape(destino) + r'`\}.*?children:`[^`]*`\}\)', js[fim_anterior:])
+        if ja:
+            fim_anterior += ja.end()
+            continue
+        novo_botao = botao(estilo, destino, rotulo, cor, emoji)
+        js = js[:fim_anterior] + novo_botao + js[fim_anterior:]
+        fim_anterior += len(novo_botao)
     # tela do Inglês: cartão "Phonics da escola" antes da lista de temas
-    alvo = 'children:`Minha voz em inglês`}),(0,k.jsx)(`span`,{style:{fontWeight:800,color:`#C98A5E`},children:`▶`})]})'
-    if alvo not in js:
-        sys.exit('ERRO: não achei o botão "Minha voz em inglês" no bundle — conferir à mão.')
-    phonics = (',(0,k.jsxs)(`button`,{onClick:()=>{location.href=`/extras/#/ingles`},"aria-label":`Phonics da escola`,'
-               'style:{display:`flex`,alignItems:`center`,gap:10,width:`100%`,maxWidth:420,padding:`14px 16px`,borderRadius:18,'
-               'border:`none`,background:`#4DA6E0`,color:`#fff`,boxShadow:`0 5px 0 rgba(0,0,0,.16)`,cursor:`pointer`,marginBottom:12},'
-               'children:[(0,k.jsx)(`span`,{style:{fontSize:`1.6rem`},children:`🚀`}),'
-               '(0,k.jsx)(`span`,{style:{flex:1,textAlign:`left`,fontWeight:800,fontSize:`1.1rem`},children:`Phonics da escola — próximo nível`}),'
-               '(0,k.jsx)(`span`,{style:{fontWeight:800},children:`▶`})]})')
-    js = js.replace(alvo, alvo + phonics, 1)
+    if '/extras/#/ingles' not in js:
+        alvo = 'children:`Minha voz em inglês`}),(0,k.jsx)(`span`,{style:{fontWeight:800,color:`#C98A5E`},children:`▶`})]})'
+        if alvo not in js:
+            sys.exit('ERRO: não achei o botão "Minha voz em inglês" no bundle — conferir à mão.')
+        phonics = (',(0,k.jsxs)(`button`,{onClick:()=>{location.href=`/extras/#/ingles`},"aria-label":`Phonics da escola`,'
+                   'style:{display:`flex`,alignItems:`center`,gap:10,width:`100%`,maxWidth:420,padding:`14px 16px`,borderRadius:18,'
+                   'border:`none`,background:`#4DA6E0`,color:`#fff`,boxShadow:`0 5px 0 rgba(0,0,0,.16)`,cursor:`pointer`,marginBottom:12},'
+                   'children:[(0,k.jsx)(`span`,{style:{fontSize:`1.6rem`},children:`🚀`}),'
+                   '(0,k.jsx)(`span`,{style:{flex:1,textAlign:`left`,fontWeight:800,fontSize:`1.1rem`},children:`Phonics da escola — próximo nível`}),'
+                   '(0,k.jsx)(`span`,{style:{fontWeight:800},children:`▶`})]})')
+        js = js.replace(alvo, alvo + phonics, 1)
+    if js == original:
+        print('botões: já estão no app (', nome, ')')
+        return nome
     novo = 'index-' + hashlib.md5(js.encode('utf-8')).hexdigest()[:8] + '.js'
     open('assets/' + novo, 'w', encoding='utf-8').write(js)
     os.remove('assets/' + nome)
@@ -67,7 +82,7 @@ def colocar_botoes():
     open('index.html', 'w', encoding='utf-8').write(html)
     sw = open('sw.js', encoding='utf-8').read().replace(f'assets/{nome}', f'assets/{novo}')
     open('sw.js', 'w', encoding='utf-8').write(sw)
-    print('botões: colocados →', novo)
+    print('botões: atualizados →', novo)
     return novo
 
 
