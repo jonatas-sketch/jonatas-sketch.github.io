@@ -50,3 +50,31 @@
   .cv-peca-svg { height: 110px; max-width: 100px; }
   .cv-casa .cv-peca-svg { height: 118px; max-width: 106px; }
 }
+
+/* ensinar: caixinhas C V C, vogais, famílias */
+.cv-casa-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cv-casa.vogal { border-color: #E53935; background: #fff3f2; }
+.cv-casa.vogal.cheia { border-color: #E53935; }
+.cv-rotulo { font-weight: 800; color: #3E92CC; font-size: 0.95rem; }
+.cv-rotulo.vogal { color: #E53935; }
+.cv-interroga { font-size: 2.6rem; font-weight: 800; color: #c9b391; }
+.cv-casa.cv-entra { animation: cv-entra 0.5s ease-out both; }
+@keyframes cv-entra { from { opacity: 0; transform: translateY(-24px) scale(0.8); } to { opacity: 1; transform: none; } }
+.cv-pula { animation: xt-pulo 0.45s; }
+.cv-vogais { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; width: 100%; }
+.cv-vogal { gap: 4px; padding: 12px 8px; }
+.cv-vogal .cv-casa { width: 84px; height: 104px; }
+.cv-vogal-fig { font-size: 2.6rem; }
+.cv-vogal b { font-family: "Andika", sans-serif; font-size: 1.3rem; }
+.cv-exemplo { flex-direction: row; gap: 18px; padding: 12px 20px; }
+.cv-exemplo-fig { font-size: 3.4rem; }
+.cv-exemplo .cv-casa { width: 78px; height: 98px; }
+.cv-exemplo .cv-casa .cv-peca-svg { height: 82px; }
+.cv-familia-tit { font-size: 1.4rem; font-weight: 800; color: var(--madeira); }
+.cv-familia-tit b { font-family: "Andika", sans-serif; font-size: 1.8rem; color: var(--ink); letter-spacing: 2px; }
+.cv-fig-familia { min-height: 150px; gap: 2px; }
+.cv-palavra-txt { font-family: "Andika", sans-serif; font-size: 2rem; }
+.cv-peca.ativa { outline: 5px solid var(--salvia); outline-offset: 2px; }
+.cv-peca.vista::after { content: "✓"; position: absolute; top: 4px; right: 8px; color: var(--salvia); font-weight: 800; }
+.cv-peca { position: relative; }
+.cv-seguir { margin-top: 6px; }
