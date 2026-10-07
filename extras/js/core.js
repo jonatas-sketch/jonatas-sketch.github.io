@@ -196,13 +196,14 @@ function ttsJa(text, lang, token, ok) {
   }
 }
 // Fala a frase: usa a gravação da Lila quando existe; senão, a voz do aparelho.
-export function falar(text, lang = 'pt') {
+// aparelho: true = usa sempre a voz do aparelho (para não misturar vozes numa sequência)
+export function falar(text, lang = 'pt', { aparelho = false } = {}) {
   if (!text) return Promise.resolve();
   pararFala();
   const token = falaToken;
   const chave = lang === 'en-us' ? 'en' : lang;
   const hash = vozHash(text, chave);
-  if (VOZ.has(hash)) {
+  if (!aparelho && VOZ.has(hash)) {
     return loadBuffer(`/audio/voz/${hash}.mp3`)
       .then((buf) => tocarBuffer(buf, token))
       .catch(() => tts(text, lang, token));

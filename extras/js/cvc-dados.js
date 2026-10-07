@@ -64,6 +64,8 @@ export function parecidas(w) {
 // Letras da escola usadas nas peças de montar (para as peças "a mais")
 export const LETRAS_ESCOLA = 'satpinmdgockeurhbfl'.split('');
 
+import { NOME_EN as NOMES_EN } from './letras-dados.js';
+
 // Famílias de palavras (o final fica igual, só a primeira letrinha muda): o jeito de ensinar
 // o padrão CVC só com palavras inteiras
 export const FAMILIAS_CVC = {
@@ -84,6 +86,9 @@ export const FALAS = {
   sons: 'Listen to each letter sound. Tap a letter!',
   sonsTodos: "Let's listen to all the sounds!",
   sonsFim: 'Well done! You heard all the sounds!',
+  abc: 'This is the alphabet. Tap a letter to hear its name!',
+  abcTodos: "Let's say the alphabet!",
+  abcFim: 'Well done! You know the alphabet!',
   continuar: "Let's keep going!",
   fim: "You finished all the words! Let's practise again.",
   intro1: "This is a cat. Let's sound it out!",
@@ -139,8 +144,13 @@ export const ETAPAS = [
 ];
 
 // Todas as falas deste módulo: [texto, idioma]
+// o alfabeto: o NOME de cada letra (a escola é britânica: "zed")
+export { NOME_EN } from './letras-dados.js';
+export const ALFABETO = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
 export function todasAsFalas() {
   const frases = [
+    ...Object.values(NOMES_EN),
     ...Object.values(FALAS), ...ELOGIOS_EN, ...TENTE_EN,
     ...Object.values(ESCRITA_EN).map((v) => (typeof v === 'function' ? v() : v)),
   ];

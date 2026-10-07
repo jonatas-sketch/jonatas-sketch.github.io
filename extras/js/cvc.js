@@ -3,10 +3,10 @@
 // ouça e monte · leia e ache · qual palavra? · escreva na pauta.
 // Tudo falado em inglês, do jeito da professora: "c… a… t… cat!" (sons gravados em /audio/fonemas).
 import {
-  h, wait, shuffle, sample, pick, falar, falarVarias, sfx, progresso, tocarArquivo,
+  h, wait, shuffle, sample, pick, falar, falarVarias, sfx, progresso, tocarArquivo, temVoz,
   irPara, tela, lila, jogo, festa, escolher, estilo, botaoOuvir,
 } from './core.js';
-import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS, ETAPAS, FAMILIAS_CVC, VOGAIS, ehVogal, figuraDe, DICIONARIO, ELOGIOS_EN, TENTE_EN, ESCRITA_EN } from './cvc-dados.js';
+import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS, ETAPAS, FAMILIAS_CVC, VOGAIS, ehVogal, figuraDe, DICIONARIO, ELOGIOS_EN, TENTE_EN, ESCRITA_EN, ALFABETO, NOME_EN } from './cvc-dados.js';
 import { FAMILIAS, familiaPrincipal } from './letras-dados.js';
 import { pautaSVG, conteudo, palavraG, larguraPalavra } from './pauta.js';
 import { montarTracado, montarLivre, avisador } from './escrita.js';
@@ -28,6 +28,7 @@ export function abrir(raiz, partes) {
   const [a, b] = partes;
   if (a === 'etapa') return rodarEtapa(raiz, Number(b));
   if (a === 'sons') return sons(raiz, { titulo: '🔊 Letter sounds', cor: COR, voltar: MENU });
+  if (a === 'abc') return alfabeto(raiz, { titulo: '🔤 ABC', cor: COR, voltar: MENU });
   return menu(raiz);
 }
 
@@ -70,7 +71,9 @@ function menu(raiz) {
   },
   h('span', { class: 'lt-continuar-emoji' }, atual ? '▶' : '🔁'),
   h('span', { class: 'lt-continuar-txt' }, h('b', null, atual ? (atual === 1 ? 'Start' : 'Keep going') : 'Review'), h('small', null, e.fase.startsWith('⭐') ? e.titulo : `${u.titulo} · ${e.titulo}`))));
-  corpo.append(h('button', { class: 'xt-btn cv-btn-sons', onclick: () => irPara('#/cvc/sons') }, '🔊 Letter sounds'));
+  corpo.append(h('div', { class: 'lt-botoes' },
+    h('button', { class: 'xt-btn cv-btn-sons', onclick: () => irPara('#/cvc/sons') }, '🔊 Letter sounds'),
+    h('button', { class: 'xt-btn cv-btn-sons cv-btn-abc', onclick: () => irPara('#/cvc/abc') }, '🔤 ABC')));
 
   let fase = '';
   let grade = null;
@@ -274,6 +277,51 @@ function sons(raiz, op) {
     fim,
   );
   dizer(FALAS.sons);
+}
+
+// ---------- 🔤 ABC: o NOME de cada letra em inglês, de A a Z ----------
+function alfabeto(raiz, op) {
+  const { corpo } = tela(raiz, { titulo: op.titulo, cor: op.cor, voltar: op.voltar });
+  corpo.append(lila(FALAS.abc, { lang: 'en' }));
+  const vistos = new Set();
+  const fim = h('div', { class: 'lt-botoes' });
+  // uma voz só no alfabeto: a da Lila quando as 26 estiverem gravadas, senão a do aparelho em todas
+  const todasGravadas = ALFABETO.every((l) => temVoz(NOME_EN[l], 'en'));
+  const nome = (l) => falar(NOME_EN[l], 'en', { aparelho: !todasGravadas });
+  const cartas = ALFABETO.map((l) => {
+    const b = h('button', { class: 'xt-ficha cv-abc' + (ehVogal(l) ? ' vogal' : ''), 'aria-label': l },
+      h('span', { class: 'cv-abc-mai' }, l.toUpperCase()), pecaSVG(l));
+    b.addEventListener('click', () => dizerLetra(l, b));
+    return b;
+  });
+  async function dizerLetra(l, b) {
+    for (const c of cartas) c.classList.remove('soando');
+    b.classList.add('soando', 'visto');
+    vistos.add(l);
+    await nome(l);
+    b.classList.remove('soando');
+    if (vistos.size === cartas.length && !fim.childElementCount) {
+      dizer(FALAS.abcFim);
+      fim.append(h('button', { class: 'xt-btn', onclick: op.voltar }, 'Done ✓'));
+    }
+  }
+  let recitando = 0;
+  async function todos() {
+    const minha = ++recitando;
+    await dizer(FALAS.abcTodos);
+    for (let i = 0; i < cartas.length; i++) {
+      if (minha !== recitando || !cartas[i].isConnected) return;
+      cartas[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      await dizerLetra(ALFABETO[i], cartas[i]);
+      await wait(250);
+    }
+  }
+  corpo.append(
+    h('div', { class: 'lt-botoes' }, h('button', { class: 'xt-btn xt-btn-2', onclick: () => todos() }, '▶ Play all')),
+    h('div', { class: 'cv-abcs' }, cartas),
+    fim,
+  );
+  dizer(FALAS.abc);
 }
 
 // ---------- ⭐ Sound it out! (ensina antes de pedir, em inglês como na escola) ----------

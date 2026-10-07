@@ -103,3 +103,18 @@
   .cv-som .cv-casa { width: 70px; height: 86px; }
   .cv-som .cv-casa .cv-peca-svg { height: 72px; max-width: 64px; }
 }
+
+/* ABC */
+.cv-btn-abc { background: #3E92CC; }
+.cv-abcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; width: 100%; }
+.cv-abc { flex-direction: row; gap: 6px; padding: 8px 10px; min-width: 0; min-height: 96px; border: 3px solid transparent; }
+.cv-abc .cv-abc-mai { font-family: "Andika", sans-serif; font-size: 2.6rem; font-weight: 700; color: #3E92CC; line-height: 1; }
+.cv-abc.vogal .cv-abc-mai { color: #E53935; }
+.cv-abc .cv-peca-svg { height: 70px; max-width: 54px; }
+.cv-abc.soando { border-color: #ffd54f; transform: scale(1.06); }
+.cv-abc.visto { background: #f4fbf3; }
+@media (max-width: 520px) {
+  .cv-abcs { grid-template-columns: repeat(4, 1fr); }
+  .cv-abc .cv-abc-mai { font-size: 1.9rem; }
+  .cv-abc .cv-peca-svg { height: 52px; max-width: 40px; }
+}
