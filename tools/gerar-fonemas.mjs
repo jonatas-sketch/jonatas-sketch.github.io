@@ -59,8 +59,8 @@ async function main() {
   }
   const prontos = readdirSync(PASTA).filter((f) => f.endsWith('.mp3')).map((f) => f.slice(0, -4)).sort();
   writeFileSync(join(RAIZ, 'extras/js/fonemas-index.js'),
-    '// Sons de letra já gravados em /audio/fonemas — gerado por tools/gerar-fonemas.mjs\n' +
-    `export const FONEMAS_PRONTOS = new Set(${JSON.stringify(prontos)});\n`);
+    '// Sons de letra prontos em /audio/fonemas (id → arquivo) — gerado por tools/gerar-fonemas.mjs\n' +
+    `export const FONEMAS_PRONTOS = new Map(${JSON.stringify(prontos.map((id) => [id, id + '.mp3']))});\n`);
   console.log(`Pronto: ${prontos.length} sons em audio/fonemas.`);
 }
 

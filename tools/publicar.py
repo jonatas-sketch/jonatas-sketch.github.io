@@ -90,7 +90,7 @@ def arquivos_extras():
     lista = []
     # sons das letras (pequenos): vão para o cache offline junto com as novidades
     if os.path.isdir('audio/fonemas'):
-        lista += ['audio/fonemas/' + f for f in sorted(os.listdir('audio/fonemas')) if f.endswith('.mp3')]
+        lista += ['audio/fonemas/' + f for f in sorted(os.listdir('audio/fonemas')) if f.endswith(('.mp3', '.m4a'))]
     for pasta, subpastas, arquivos in os.walk('extras'):
         subpastas[:] = [d for d in subpastas if not d.startswith('_')]
         for a in sorted(arquivos):

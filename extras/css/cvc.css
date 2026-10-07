@@ -87,3 +87,19 @@
 .cv-devagar { background: var(--salvia); }
 .cv-premio { min-height: 150px; display: flex; align-items: center; justify-content: center; gap: 14px; }
 .lt-premio .cv-casas .cv-casa, .cv-premio .cv-casa { width: 84px; height: 104px; }
+
+/* Letter sounds */
+.cv-btn-sons { font-size: 1.1rem; padding: 10px 20px; }
+.cv-sons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+.cv-som { gap: 2px; padding: 10px 6px; min-width: 0; }
+.cv-som .cv-casa { width: 86px; height: 104px; }
+.cv-som .cv-casa .cv-peca-svg { height: 88px; max-width: 80px; }
+.cv-som-fig { font-size: 1.8rem; line-height: 1.1; }
+.cv-som small { font-family: "Andika", sans-serif; font-size: 0.95rem; color: #8a7563; }
+.cv-som.soando { outline: 5px solid #ffd54f; outline-offset: 2px; transform: scale(1.05); }
+.cv-som.visto .cv-casa { border-color: var(--salvia); }
+@media (max-width: 520px) {
+  .cv-sons { grid-template-columns: repeat(3, 1fr); }
+  .cv-som .cv-casa { width: 70px; height: 86px; }
+  .cv-som .cv-casa .cv-peca-svg { height: 72px; max-width: 64px; }
+}

@@ -10,7 +10,7 @@ import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS
 import { FAMILIAS, familiaPrincipal } from './letras-dados.js';
 import { pautaSVG, conteudo, palavraG, larguraPalavra } from './pauta.js';
 import { montarTracado, montarLivre, avisador } from './escrita.js';
-import { temSom, urlSom } from './fonemas.js';
+import { temSom, urlSom, SONS_ESCOLA } from './fonemas.js';
 
 const MOD = 'cvc';
 const COR = '#2BAE9C';
@@ -27,6 +27,7 @@ export function abrir(raiz, partes) {
   estilo('cvc');
   const [a, b] = partes;
   if (a === 'etapa') return rodarEtapa(raiz, Number(b));
+  if (a === 'sons') return sons(raiz, { titulo: '🔊 Letter sounds', cor: COR, voltar: MENU });
   return menu(raiz);
 }
 
@@ -45,7 +46,7 @@ function rodarEtapa(raiz, n) {
   const u = unidade(e.unidade);
   const op = {
     chave: chaveEtapa(n),
-    titulo: e.tipo === 'intro' ? `⭐ ${e.titulo}` : `${u.emoji} ${e.titulo}`,
+    titulo: e.tipo === 'intro' || e.tipo === 'sons' ? `${e.emoji} ${e.titulo}` : `${u.emoji} ${e.titulo}`,
     cor: u.cor,
     palavras: u.palavras,
     comFinais: u.id === 'fim' || u.id === 'mix',
@@ -53,7 +54,7 @@ function rodarEtapa(raiz, n) {
     proxima: n < ETAPAS.length ? () => irPara('#/cvc/etapa/' + (n + 1)) : MENU,
   };
   op.unidade = u.id;
-  return { intro, aprender, completar, montar, ler, qual, escrever }[e.tipo](raiz, op);
+  return { sons, intro, aprender, completar, montar, ler, qual, escrever }[e.tipo](raiz, op);
 }
 
 function menu(raiz) {
@@ -68,7 +69,8 @@ function menu(raiz) {
     onclick: () => { dizer(atual ? FALAS.continuar : FALAS.fim); irPara('#/cvc/etapa/' + alvo); },
   },
   h('span', { class: 'lt-continuar-emoji' }, atual ? '▶' : '🔁'),
-  h('span', { class: 'lt-continuar-txt' }, h('b', null, atual ? (atual === 1 ? 'Start' : 'Keep going') : 'Review'), h('small', null, e.tipo === 'intro' ? e.titulo : `${u.titulo} · ${e.titulo}`))));
+  h('span', { class: 'lt-continuar-txt' }, h('b', null, atual ? (atual === 1 ? 'Start' : 'Keep going') : 'Review'), h('small', null, e.fase.startsWith('⭐') ? e.titulo : `${u.titulo} · ${e.titulo}`))));
+  corpo.append(h('button', { class: 'xt-btn cv-btn-sons', onclick: () => irPara('#/cvc/sons') }, '🔊 Letter sounds'));
 
   let fase = '';
   let grade = null;
@@ -77,7 +79,7 @@ function menu(raiz) {
     if (et.fase !== fase) {
       fase = et.fase;
       const un = unidade(et.unidade);
-      const exemplos = et.tipo === 'intro' ? '' : ' · ' + un.palavras.slice(0, 4).map((p) => p.w).join(', ');
+      const exemplos = et.fase.startsWith('⭐') ? '' : ' · ' + un.palavras.slice(0, 4).map((p) => p.w).join(', ');
       corpo.append(h('p', { class: 'xt-secao' }, fase, h('span', { class: 'cv-exemplos' }, exemplos)));
       grade = h('div', { class: 'lt-trilha-grade' });
       corpo.append(grade);
@@ -222,6 +224,57 @@ async function soletrar(w, caixas) {
 }
 // botão para ouvir de novo devagar (letra por letra)
 const botaoSoletrar = (w, caixas) => h('button', { class: 'xt-ouvir cv-devagar', 'aria-label': 'Sound it out again', onclick: () => soletrar(w, caixas) }, '🐢');
+
+// ---------- 🔊 Letter sounds: o som de cada letra, uma a uma (como "Learn single letter sounds") ----------
+function sons(raiz, op) {
+  const { corpo } = tela(raiz, { titulo: op.titulo, cor: op.cor, voltar: op.voltar });
+  corpo.append(lila(FALAS.sons, { lang: 'en' }));
+  const vistos = new Set();
+  const fim = h('div', { class: 'lt-botoes' });
+  const cartas = SONS_ESCOLA.map(([g, w, e]) => {
+    const b = h('button', { class: 'xt-ficha cv-som', 'aria-label': g },
+      h('div', { class: 'cv-casa cheia' + (ehVogal(g[0]) ? ' vogal' : '') }, pecaSVG(g)),
+      h('span', { class: 'cv-som-fig' }, e), h('small', null, w));
+    b.addEventListener('click', () => tocar(g, w, b, true));
+    return b;
+  });
+  async function tocar(g, w, b, comPalavra) {
+    for (const c of cartas) c.classList.remove('soando');
+    b.classList.add('soando', 'visto');
+    vistos.add(g);
+    if (temSom(g)) await tocarArquivo(urlSom(g));
+    if (comPalavra) {
+      await wait(350);
+      await dizer(w);
+    }
+    b.classList.remove('soando');
+    if (vistos.size === cartas.length && !fim.childElementCount) concluir();
+  }
+  let tocandoTodos = 0;
+  async function todos() {
+    const minha = ++tocandoTodos;
+    await dizer(FALAS.sonsTodos);
+    for (let i = 0; i < cartas.length; i++) {
+      if (minha !== tocandoTodos || !cartas[i].isConnected) return;
+      cartas[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      await tocar(SONS_ESCOLA[i][0], SONS_ESCOLA[i][1], cartas[i], false);
+      await wait(650);
+    }
+  }
+  function concluir() {
+    if (op.chave) progresso.registrar(MOD, op.chave, 3);
+    dizer(FALAS.sonsFim);
+    fim.append(op.proxima
+      ? h('button', { class: 'xt-btn', onclick: op.proxima }, 'Next ▶')
+      : h('button', { class: 'xt-btn', onclick: op.voltar }, 'Done ✓'));
+  }
+  corpo.append(
+    h('div', { class: 'lt-botoes' }, h('button', { class: 'xt-btn xt-btn-2', onclick: () => todos() }, '▶ Play all')),
+    h('div', { class: 'cv-sons' }, cartas),
+    fim,
+  );
+  dizer(FALAS.sons);
+}
 
 // ---------- ⭐ Sound it out! (ensina antes de pedir, em inglês como na escola) ----------
 // som de uma letra (quando já gravado) e depois a palavra: "a… apple!"

@@ -81,6 +81,9 @@ export const figuraDe = (w) => UNIDADES.find((u) => u.id === 'mix').palavras.fin
 // Tudo em inglês, do jeito da professora (frases curtas, sem "consoante/vogal")
 export const FALAS = {
   menu: "Let's read words!",
+  sons: 'Listen to each letter sound. Tap a letter!',
+  sonsTodos: "Let's listen to all the sounds!",
+  sonsFim: 'Well done! You heard all the sounds!',
   continuar: "Let's keep going!",
   fim: "You finished all the words! Let's practise again.",
   intro1: "This is a cat. Let's sound it out!",
@@ -128,6 +131,7 @@ export const TIPOS = [
   { tipo: 'escrever', titulo: 'Write it', emoji: '✏️' },
 ];
 export const ETAPAS = [
+  { tipo: 'sons', titulo: 'Letter sounds', emoji: '🔊', unidade: 'a', fase: '⭐ Start here', chave: 'sons' },
   { tipo: 'intro', titulo: 'Sound it out!', emoji: '⭐', unidade: 'a', fase: '⭐ Start here', chave: 'intro' },
   ...UNIDADES.flatMap((u) => TIPOS
     .filter((t) => u.id !== 'mix' || !['aprender', 'completar'].includes(t.tipo))
