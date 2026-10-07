@@ -18,21 +18,21 @@ export function grafemas(w) {
 }
 
 export const UNIDADES = [
-  { id: 'a', titulo: 'Palavras com a', emoji: '🐱', cor: '#E07A4C',
+  { id: 'a', titulo: 'Words with a', emoji: '🐱', cor: '#E07A4C',
     palavras: ps('cat 🐱', 'hat 🎩', 'bat 🦇', 'rat 🐀', 'map 🗺️', 'cap 🧢', 'pan 🍳', 'can 🥫', 'fan 🪭', 'bag 👜', 'ram 🐏', 'tap 🚰', 'sad 😢', 'nap 😴', 'dad 👨', 'ham 🍖') },
-  { id: 'i', titulo: 'Palavras com i', emoji: '🐷', cor: '#D69A2D',
+  { id: 'i', titulo: 'Words with i', emoji: '🐷', cor: '#D69A2D',
     palavras: ps('pig 🐷', 'pin 📌', 'bin 🗑️', 'lip 👄', 'kid 🧒', 'dig ⛏️', 'sit 🪑', 'sip 🥤') },
-  { id: 'o', titulo: 'Palavras com o', emoji: '🐶', cor: '#5E9A57',
+  { id: 'o', titulo: 'Words with o', emoji: '🐶', cor: '#5E9A57',
     palavras: ps('dog 🐶', 'pot 🍲', 'mop 🧹', 'log 🪵', 'dot ⚫', 'rod 🎣', 'hot 🥵', 'fog 🌫️', 'hog 🐗') },
-  { id: 'u', titulo: 'Palavras com u', emoji: '☀️', cor: '#3E92CC',
+  { id: 'u', titulo: 'Words with u', emoji: '☀️', cor: '#3E92CC',
     palavras: ps('sun ☀️', 'cup ☕', 'bug 🐛', 'bus 🚌', 'nut 🥜', 'hut 🛖', 'tub 🛁', 'run 🏃', 'hug 🫂', 'cut ✂️') },
-  { id: 'e', titulo: 'Palavras com e', emoji: '🛏️', cor: '#8E72D0',
+  { id: 'e', titulo: 'Words with e', emoji: '🛏️', cor: '#8E72D0',
     palavras: ps('bed 🛏️', 'pen 🖊️', 'hen 🐔', 'net 🥅', 'red 🔴', 'ten 🔟', 'leg 🦵') },
-  { id: 'fim', titulo: 'Finais ck ff ll ss', emoji: '🦆', cor: '#D27BA0',
+  { id: 'fim', titulo: 'Words with ck ff ll ss', emoji: '🦆', cor: '#D27BA0',
     palavras: ps('duck 🦆', 'sock 🧦', 'rock 🪨', 'lock 🔒', 'puff 💨', 'hill ⛰️', 'bell 🔔', 'doll 🪆', 'kiss 💋', 'pill 💊') },
 ];
 // unidade final: todas misturadas
-UNIDADES.push({ id: 'mix', titulo: 'Todas misturadas', emoji: '🌈', cor: '#2BAE9C', palavras: UNIDADES.flatMap((u) => u.palavras) });
+UNIDADES.push({ id: 'mix', titulo: 'All the words', emoji: '🌈', cor: '#2BAE9C', palavras: UNIDADES.flatMap((u) => u.palavras) });
 export const unidade = (id) => UNIDADES.find((u) => u.id === id);
 
 // Figuras que podem confundir entre si: nunca aparecem juntas como opção
@@ -78,37 +78,57 @@ export const VOGAIS = [['a', 'apple', '🍎'], ['e', 'egg', '🥚'], ['i', 'inse
 export const ehVogal = (g) => 'aeiou'.includes(g);
 export const figuraDe = (w) => UNIDADES.find((u) => u.id === 'mix').palavras.find((p) => p.w === w);
 
+// Tudo em inglês, do jeito da professora (frases curtas, sem "consoante/vogal")
 export const FALAS = {
-  menu: 'Vamos ler e escrever palavrinhas em inglês! Cada palavra tem três pedacinhos.',
-  continuar: 'Vamos continuar as palavrinhas!',
-  fim: 'Você terminou todas as palavrinhas! Agora vamos revisar para ficar craque.',
-  intro1: 'Uma palavra CVC tem três pedacinhos: uma consoante no começo, uma vogal no meio e outra consoante no fim. Olha só:',
-  intro2: 'Essas são as vogais, as letrinhas vermelhas. Toque em cada uma para ouvir uma palavra que começa com ela!',
-  intro3: 'Toda palavrinha CVC tem uma vogal no meio. Toque nas palavras para ouvir!',
-  familia: 'Olha só! O final da palavra fica igual. Quando a gente troca a primeira letrinha, a palavra muda!',
-  familiaToque: 'Agora é a sua vez! Toque nas letrinhas para trocar a primeira letra.',
-  familiaFim: 'Muito bem! Você descobriu todas as palavras dessa família!',
-  completar: 'Escute a palavra e complete com a letrinha que falta!',
-  montar: 'Escute a palavra e monte com as letrinhas!',
-  montarErro: 'Essa letrinha não vai aí. Escute a palavra de novo!',
-  ler: 'Leia a palavra e toque na figura certa!',
-  qual: 'Escute e toque na palavra certa! Olhe bem cada letrinha.',
-  escrever: 'Agora escreva a palavra na pauta, respeitando a girafa, a tartaruga e o macaco!',
-  escreverSozinha: 'Agora escreva sozinha, sem a trilha!',
-  palavraPronta: 'Palavra pronta!',
+  menu: "Let's read words!",
+  continuar: "Let's keep going!",
+  fim: "You finished all the words! Let's practise again.",
+  intro1: "This is a cat. Let's sound it out!",
+  intro2: 'These are the vowels. Tap them!',
+  intro3: "Let's sound out more words. Tap them!",
+  familia: 'Listen! We change the first letter, and we get a new word!',
+  familiaToque: 'Your turn! Tap a letter.',
+  familiaFim: 'Well done! You found all the words!',
+  completar: 'Listen. Which letter is missing?',
+  montar: 'Listen and build the word!',
+  ler: 'Read the word. Find the picture!',
+  qual: 'Listen. Which word is it?',
+  escrever: "Let's write the word! Start at the green dot.",
+  escreverSozinha: 'Now write it on your own!',
+  escreverPalavra: 'Write the word on the lines.',
+  respeitou: 'Great writing!',
+  trancada: 'Finish the one before first!',
+};
+export const ELOGIOS_EN = ['Well done!', 'Great job!', 'Brilliant!', 'Fantastic!', 'Super reading!', 'Well done, Stella!'];
+export const TENTE_EN = ['Try again!', 'Listen again!', 'Oops! Have another go.'];
+// avisos da escrita na pauta, com os nomes que a escola usa (Giraffe, Tortoise, Monkey letters)
+export const ESCRITA_EN = {
+  bolinha: 'Start at the green dot!',
+  continueBolinha: 'Carry on from the green dot!',
+  saiu: 'Oops! Stay on the path. Back to the green dot.',
+  escrevaPrimeiro: 'Write the word first!',
+  faltouSubir: 'Make it taller! Giraffe letters touch the top line.',
+  palavraFaltouSubir: 'Make it taller! Giraffe letters touch the top line.',
+  subiuDemais: () => 'Too tall! Tortoise letters stay in the middle.',
+  palavraSubiu: 'Too tall! Tortoise letters stay in the middle.',
+  faltouDescer: 'Go down more! Monkey letters hang below the line.',
+  palavraFaltouDescer: 'Go down more! Monkey letters hang below the line.',
+  afundou: 'Oops, too low! Only monkey letters go below the line.',
+  palavraAfundou: 'Oops, too low! Only monkey letters go below the line.',
+  flutuando: 'Sit it on the line!',
 };
 
 // Trilha: primeiro aprender (famílias, completar), depois praticar (montar, ler, qual, escrever)
 export const TIPOS = [
-  { tipo: 'aprender', titulo: 'Famílias de palavras', emoji: '📖' },
-  { tipo: 'completar', titulo: 'Complete a palavra', emoji: '🧩' },
-  { tipo: 'montar', titulo: 'Ouça e monte', emoji: '🔤' },
-  { tipo: 'ler', titulo: 'Leia e ache', emoji: '👀' },
-  { tipo: 'qual', titulo: 'Qual palavra?', emoji: '👂' },
-  { tipo: 'escrever', titulo: 'Escreva na pauta', emoji: '✏️' },
+  { tipo: 'aprender', titulo: 'Word families', emoji: '📖' },
+  { tipo: 'completar', titulo: 'Missing letter', emoji: '🧩' },
+  { tipo: 'montar', titulo: 'Listen and build', emoji: '🔤' },
+  { tipo: 'ler', titulo: 'Read and find', emoji: '👀' },
+  { tipo: 'qual', titulo: 'Which word?', emoji: '👂' },
+  { tipo: 'escrever', titulo: 'Write it', emoji: '✏️' },
 ];
 export const ETAPAS = [
-  { tipo: 'intro', titulo: 'O que é uma palavra CVC?', emoji: '⭐', unidade: 'a', fase: '⭐ Comece aqui', chave: 'intro' },
+  { tipo: 'intro', titulo: 'Sound it out!', emoji: '⭐', unidade: 'a', fase: '⭐ Start here', chave: 'intro' },
   ...UNIDADES.flatMap((u) => TIPOS
     .filter((t) => u.id !== 'mix' || !['aprender', 'completar'].includes(t.tipo))
     .map((t) => ({ ...t, unidade: u.id, fase: `${u.emoji} ${u.titulo}`, chave: `${u.id}-${t.tipo}` }))),
@@ -116,7 +136,10 @@ export const ETAPAS = [
 
 // Todas as falas deste módulo: [texto, idioma]
 export function todasAsFalas() {
-  const pt = Object.values(FALAS).map((t) => [t, 'pt']);
-  const en = [...new Set([...UNIDADES.flatMap((u) => u.palavras.map((p) => p.w)), ...DICIONARIO, ...VOGAIS.map((v) => v[1])])].map((w) => [w, 'en']);
-  return [...pt, ...en];
+  const frases = [
+    ...Object.values(FALAS), ...ELOGIOS_EN, ...TENTE_EN,
+    ...Object.values(ESCRITA_EN).map((v) => (typeof v === 'function' ? v() : v)),
+  ];
+  const palavras = [...UNIDADES.flatMap((u) => u.palavras.map((p) => p.w)), ...DICIONARIO, ...VOGAIS.map((v) => v[1])];
+  return [...new Set([...frases, ...palavras])].map((t) => [t, 'en']);
 }

@@ -1,14 +1,13 @@
 // Palavras CVC: ler e escrever palavrinhas de 3 pedacinhos em inglês, com as letras da escola.
 // Trilha por vogal (a → i → o → u → e → finais ck ff ll ss → todas), 4 etapas em cada:
 // ouça e monte · leia e ache · qual palavra? · escreva na pauta.
-// Só palavras inteiras são faladas: o som puro de cada letra fica com o app da professora.
+// Tudo falado em inglês, do jeito da professora: "c… a… t… cat!" (sons gravados em /audio/fonemas).
 import {
-  h, wait, shuffle, sample, falar, falarVarias, sfx, elogiar, progresso, tocarArquivo,
+  h, wait, shuffle, sample, pick, falar, falarVarias, sfx, progresso, tocarArquivo,
   irPara, tela, lila, jogo, festa, escolher, estilo, botaoOuvir,
 } from './core.js';
-import { FALA_TRANCADA } from './falas-core.js';
-import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS, ETAPAS, FAMILIAS_CVC, VOGAIS, ehVogal, figuraDe, DICIONARIO } from './cvc-dados.js';
-import { FAMILIAS, familiaPrincipal, FALAS as FALAS_LETRAS } from './letras-dados.js';
+import { UNIDADES, unidade, grafemas, conflitam, parecidas, LETRAS_ESCOLA, FALAS, ETAPAS, FAMILIAS_CVC, VOGAIS, ehVogal, figuraDe, DICIONARIO, ELOGIOS_EN, TENTE_EN, ESCRITA_EN } from './cvc-dados.js';
+import { FAMILIAS, familiaPrincipal } from './letras-dados.js';
 import { pautaSVG, conteudo, palavraG, larguraPalavra } from './pauta.js';
 import { montarTracado, montarLivre, avisador } from './escrita.js';
 import { temSom, urlSom } from './fonemas.js';
@@ -19,6 +18,9 @@ const MENU = () => irPara('#/cvc');
 const feito = (chave) => progresso.feito(MOD, chave);
 const corDa = (l) => FAMILIAS[familiaPrincipal(l)].cor;
 const dizer = (w) => falar(w, 'en');
+const elogiar = () => falar(pick(ELOGIOS_EN), 'en');
+const tente = () => falar(pick(TENTE_EN), 'en');
+const EN = { langInstrucao: 'en', elogiosFesta: ELOGIOS_EN };
 
 export function abrir(raiz, partes) {
   estilo('letras');
@@ -55,18 +57,18 @@ function rodarEtapa(raiz, n) {
 }
 
 function menu(raiz) {
-  const { corpo } = tela(raiz, { titulo: 'Palavras CVC 🔤', cor: COR });
-  corpo.append(lila('Vamos ler e escrever palavrinhas em inglês!', { fala: FALAS.menu }));
+  const { corpo } = tela(raiz, { titulo: 'CVC Words 🔤', cor: COR });
+  corpo.append(lila(FALAS.menu, { lang: 'en' }));
   const atual = etapaAtual();
   const alvo = atual || 1 + Math.floor(Math.random() * ETAPAS.length);
   const e = ETAPAS[alvo - 1];
   const u = unidade(e.unidade);
   corpo.append(h('button', {
     class: 'lt-continuar cv-continuar',
-    onclick: () => { falar(atual ? FALAS.continuar : FALAS.fim); irPara('#/cvc/etapa/' + alvo); },
+    onclick: () => { dizer(atual ? FALAS.continuar : FALAS.fim); irPara('#/cvc/etapa/' + alvo); },
   },
   h('span', { class: 'lt-continuar-emoji' }, atual ? '▶' : '🔁'),
-  h('span', { class: 'lt-continuar-txt' }, h('b', null, atual ? (atual === 1 ? 'Começar' : 'Continuar') : 'Revisão'), h('small', null, e.tipo === 'intro' ? e.titulo : `${u.titulo} · ${e.titulo}`))));
+  h('span', { class: 'lt-continuar-txt' }, h('b', null, atual ? (atual === 1 ? 'Start' : 'Keep going') : 'Review'), h('small', null, e.tipo === 'intro' ? e.titulo : `${u.titulo} · ${e.titulo}`))));
 
   let fase = '';
   let grade = null;
@@ -87,9 +89,9 @@ function menu(raiz) {
       onclick: () => {
         if (livre) return irPara('#/cvc/etapa/' + n);
         sfx.errado();
-        falar(FALA_TRANCADA);
+        dizer(FALAS.trancada);
       },
-      'aria-label': `Etapa ${n}`,
+      'aria-label': `Step ${n}`,
     },
     h('span', { class: 'lt-etapa-n' }, livre ? String(n) : '🔒'),
     h('span', { class: 'lt-etapa-emoji' }, et.emoji),
@@ -114,8 +116,8 @@ function montar(raiz, op) {
   const alvos = sortear(op.palavras, 6);
   jogo(raiz, {
     titulo: op.titulo, cor: op.cor, voltar: op.voltar, proxima: op.proxima,
-    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false,
-    instrucao: { texto: 'Escute a palavra e monte com as letrinhas!', fala: FALAS.montar },
+    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false, ...EN,
+    instrucao: { texto: FALAS.montar },
     rodada: (i, area) => new Promise((ok) => {
       const p = alvos[i];
       const gs = grafemas(p.w);
@@ -166,7 +168,7 @@ function montar(raiz, op) {
         h('div', { class: 'cv-pecas' }, pecas),
         pronta,
       );
-      if (i === 0) falarVarias([[FALAS.montar, 'pt'], [p.w, 'en']]);
+      if (i === 0) falarVarias([[FALAS.montar, 'en'], [p.w, 'en']]);
       else dizer(p.w);
     }),
   });
@@ -183,14 +185,14 @@ function pecaSVG(g) {
 }
 
 // ---------- caixinhas C V C ----------
-// gs = pedacinhos da palavra; vazias = posições sem letra (mostra "?"); rotulos = consoante/vogal embaixo
-function caixasCVC(gs, { vazias = [], rotulos = false, animar = false } = {}) {
+// gs = pedacinhos da palavra; vazias = posições sem letra (mostra "?")
+function caixasCVC(gs, { vazias = [], animar = false } = {}) {
   const casas = gs.map((g, i) => {
     const casa = h('div', { class: 'cv-casa' + (ehVogal(g[0]) ? ' vogal' : '') + (vazias.includes(i) ? '' : ' cheia') },
       vazias.includes(i) ? h('span', { class: 'cv-interroga' }, '?') : pecaSVG(g));
     if (animar && !vazias.includes(i)) casa.style.animationDelay = i * 0.6 + 's';
     if (animar) casa.classList.add('cv-entra');
-    return h('div', { class: 'cv-casa-col' }, casa, rotulos ? h('small', { class: 'cv-rotulo' + (ehVogal(g[0]) ? ' vogal' : '') }, ehVogal(g[0]) ? 'vogal' : 'consoante') : null);
+    return h('div', { class: 'cv-casa-col' }, casa);
   });
   const el = h('div', { class: 'cv-casas' }, casas);
   el.casa = (i) => casas[i].firstChild;
@@ -219,37 +221,45 @@ async function soletrar(w, caixas) {
   caixas.classList.remove('cv-junta');
 }
 // botão para ouvir de novo devagar (letra por letra)
-const botaoSoletrar = (w, caixas) => h('button', { class: 'xt-ouvir cv-devagar', 'aria-label': 'Ouvir letra por letra', onclick: () => soletrar(w, caixas) }, '🐢');
+const botaoSoletrar = (w, caixas) => h('button', { class: 'xt-ouvir cv-devagar', 'aria-label': 'Sound it out again', onclick: () => soletrar(w, caixas) }, '🐢');
 
-// ---------- ⭐ O que é uma palavra CVC? (ensina antes de pedir) ----------
+// ---------- ⭐ Sound it out! (ensina antes de pedir, em inglês como na escola) ----------
+// som de uma letra (quando já gravado) e depois a palavra: "a… apple!"
+async function somEPalavra(g, w) {
+  if (temSom(g)) {
+    await tocarArquivo(urlSom(g));
+    await wait(300);
+  }
+  await dizer(w);
+}
 function intro(raiz, op) {
   const passos = [
     (corpo) => {
       corpo.append(
-        lila('Uma palavra CVC tem três pedacinhos: consoante, vogal e consoante.', { fala: FALAS.intro1 }),
+        lila(FALAS.intro1, { lang: 'en' }),
         h('div', { class: 'cv-topo' }, h('div', { class: 'xt-ficha cv-figura' }, h('span', { class: 'xt-emoji-grande' }, '🐱'))),
       );
-      const caixas = caixasCVC(grafemas('cat'), { rotulos: true, animar: true });
+      const caixas = caixasCVC(grafemas('cat'), { animar: true });
       corpo.append(caixas, h('div', { class: 'lt-botoes' }, botaoSoletrar('cat', caixas)));
-      falar(FALAS.intro1).then(() => soletrar('cat', caixas));
+      dizer(FALAS.intro1).then(() => soletrar('cat', caixas));
     },
     (corpo) => {
       corpo.append(
-        lila('Essas são as vogais, as letrinhas vermelhas!', { fala: FALAS.intro2 }),
-        h('div', { class: 'cv-vogais' }, VOGAIS.map(([v, w, e]) => h('button', { class: 'xt-ficha cv-vogal', onclick: () => dizer(w), 'aria-label': w },
+        lila(FALAS.intro2, { lang: 'en' }),
+        h('div', { class: 'cv-vogais' }, VOGAIS.map(([v, w, e]) => h('button', { class: 'xt-ficha cv-vogal', onclick: () => somEPalavra(v, w), 'aria-label': w },
           h('div', { class: 'cv-casa vogal cheia' }, pecaSVG(v)), h('span', { class: 'cv-vogal-fig' }, e), h('b', null, w)))),
       );
-      falar(FALAS.intro2);
+      dizer(FALAS.intro2);
     },
     (corpo) => {
-      corpo.append(lila('Toda palavrinha CVC tem uma vogal no meio!', { fala: FALAS.intro3 }));
+      corpo.append(lila(FALAS.intro3, { lang: 'en' }));
       for (const w of ['cat', 'dog', 'sun']) {
         const p = figuraDe(w);
         const caixas = caixasCVC(grafemas(w));
         corpo.append(h('button', { class: 'xt-ficha cv-exemplo', onclick: () => soletrar(w, caixas), 'aria-label': w },
           h('span', { class: 'cv-exemplo-fig' }, p.e), caixas));
       }
-      falar(FALAS.intro3);
+      dizer(FALAS.intro3);
     },
   ];
   let i = 0;
@@ -263,9 +273,9 @@ function intro(raiz, op) {
         i++;
         if (i < passos.length) return mostrar();
         progresso.registrar(MOD, op.chave, 3);
-        festa(raiz, { estrelas: 3, voltar: op.voltar, proxima: op.proxima });
+        festa(raiz, { estrelas: 3, voltar: op.voltar, proxima: op.proxima, lang: 'en', elogios: ELOGIOS_EN });
       },
-    }, i < passos.length - 1 ? 'Entendi ▶' : 'Vamos começar! ▶'));
+    }, i < passos.length - 1 ? 'Next ▶' : "Let's go! ▶"));
   }
   mostrar();
 }
@@ -278,7 +288,7 @@ function aprender(raiz, op) {
     const [rima, palavras] = familias[f];
     const { corpo } = tela(raiz, { titulo: op.titulo, cor: op.cor, voltar: op.voltar });
     corpo.append(h('div', { class: 'xt-bolinhas' }, familias.map((_, k) => h('i', { class: k < f ? 'ok' : k === f ? 'meio' : '' }))));
-    const dica = lila('O final fica igual. Troque a primeira letrinha!', { fala: FALAS.familia });
+    const dica = lila(FALAS.familia, { lang: 'en' });
     const gsRima = grafemas('x' + rima).slice(1);
     const caixas = caixasCVC(['?', ...gsRima], { vazias: [0] });
     const figura = h('div', { class: 'xt-ficha cv-figura cv-fig-familia' }, h('span', { class: 'cv-interroga' }, '?'));
@@ -306,27 +316,27 @@ function aprender(raiz, op) {
       if (vistas.size === palavras.length && !seguir.childElementCount) {
         setTimeout(() => {
           if (!seguir.isConnected) return;
-          falar(FALAS.familiaFim);
+          dizer(FALAS.familiaFim);
           seguir.append(h('button', { class: 'xt-btn', onclick: () => {
             f++;
             if (f < familias.length) return familia();
             progresso.registrar(MOD, op.chave, 3);
-            festa(raiz, { estrelas: 3, voltar: op.voltar, proxima: op.proxima });
-          } }, f < familias.length - 1 ? 'Próxima família ▶' : 'Terminei! ▶'));
+            festa(raiz, { estrelas: 3, voltar: op.voltar, proxima: op.proxima, lang: 'en', elogios: ELOGIOS_EN });
+          } }, f < familias.length - 1 ? 'Next family ▶' : 'Finished! ▶'));
         }, 3200);
       }
     }
-    corpo.append(dica, h('p', { class: 'cv-familia-tit' }, 'Família do ', h('b', null, '_' + rima)), caixas, figura, h('div', { class: 'cv-pecas' }, letras), seguir);
+    corpo.append(dica, h('p', { class: 'cv-familia-tit' }, 'The ', h('b', null, '_' + rima), ' family'), caixas, figura, h('div', { class: 'cv-pecas' }, letras), seguir);
     // a Lila mostra a primeira palavra; depois é a vez dela
     if (f === 0) {
-      falar(FALAS.familia).then(async () => {
+      dizer(FALAS.familia).then(async () => {
         if (!letras[0].isConnected) return;
         escolherInicio(palavras[0], grafemas(palavras[0])[0], letras[0]);
         await wait(3200);
-        if (letras[0].isConnected) dica.trocar('Agora é a sua vez! Toque nas letrinhas.', FALAS.familiaToque);
+        if (letras[0].isConnected) dica.trocar(FALAS.familiaToque);
       });
     } else {
-      falar(FALAS.familiaToque);
+      dizer(FALAS.familiaToque);
     }
   }
   familia();
@@ -339,8 +349,8 @@ function completar(raiz, op) {
   const faltando = (i, n) => (i < 2 ? 0 : i < 4 ? n - 1 : 1);
   jogo(raiz, {
     titulo: op.titulo, cor: op.cor, voltar: op.voltar, proxima: op.proxima,
-    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false,
-    instrucao: { texto: 'Escute a palavra e complete com a letrinha que falta!', fala: FALAS.completar },
+    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false, ...EN,
+    instrucao: { texto: FALAS.completar },
     rodada: (i, area) => {
       const p = alvos[i];
       const gs = grafemas(p.w);
@@ -357,7 +367,7 @@ function completar(raiz, op) {
         caixas,
         h('div', { class: 'cv-pecas' }, opcoes.map((o) => o.el)),
       );
-      if (i === 0) falarVarias([[FALAS.completar, 'pt'], [p.w, 'en']]);
+      if (i === 0) falarVarias([[FALAS.completar, 'en'], [p.w, 'en']]);
       else dizer(p.w);
       return escolher(opcoes, {
         falarElogio: false,
@@ -394,8 +404,8 @@ function ler(raiz, op) {
   const alvos = sortear(op.palavras, 6);
   jogo(raiz, {
     titulo: op.titulo, cor: op.cor, voltar: op.voltar, proxima: op.proxima,
-    modulo: MOD, atividade: op.chave, rodadas: alvos.length,
-    instrucao: { texto: 'Leia a palavra e toque na figura certa!', fala: FALAS.ler },
+    modulo: MOD, atividade: op.chave, rodadas: alvos.length, ...EN,
+    instrucao: { texto: FALAS.ler },
     rodada: (i, area) => {
       const p = alvos[i];
       const opcoes = shuffle([p, ...outrasFiguras(p, op.palavras, 2)]).map((q) => ({
@@ -414,8 +424,10 @@ function ler(raiz, op) {
           const caixas = caixasCVC(grafemas(p.w));
           premio.replaceChildren(caixas);
           await soletrar(p.w, caixas);
+          elogiar();
           await wait(500);
         },
+        aoErrar: () => tente(),
       });
     },
   });
@@ -440,8 +452,8 @@ function qual(raiz, op) {
   const alvos = sortear(op.palavras, 6);
   jogo(raiz, {
     titulo: op.titulo, cor: op.cor, voltar: op.voltar, proxima: op.proxima,
-    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false,
-    instrucao: { texto: 'Escute e toque na palavra certa!', fala: FALAS.qual },
+    modulo: MOD, atividade: op.chave, rodadas: alvos.length, falarInstrucao: false, ...EN,
+    instrucao: { texto: FALAS.qual },
     rodada: (i, area) => {
       const p = alvos[i];
       const opcoes = shuffle([p.w, ...opcoesParecidas(p.w, op.comFinais)]).map((w) => ({
@@ -454,7 +466,7 @@ function qual(raiz, op) {
         h('div', { class: 'xt-opcoes cv-coluna' }, opcoes.map((o) => o.el)),
         premio,
       );
-      if (i === 0) falarVarias([[FALAS.qual, 'pt'], [p.w, 'en']]);
+      if (i === 0) falarVarias([[FALAS.qual, 'en'], [p.w, 'en']]);
       else dizer(p.w);
       return escolher(opcoes, {
         falarElogio: false,
@@ -465,6 +477,7 @@ function qual(raiz, op) {
           elogiar();
           await wait(500);
         },
+        aoErrar: () => dizer(p.w),
       });
     },
   });
@@ -483,47 +496,48 @@ function escrever(raiz, op) {
   function comTrilha(i) {
     const p = alvos[i];
     const { corpo } = cabecalho(i, p);
-    const dica = lila('Escreva a palavra seguindo a trilha!', { fala: FALAS.escrever });
+    const dica = lila(FALAS.escrever, { lang: 'en' });
     const caixa = h('div', { class: 'lt-tracar' });
     corpo.append(dica, caixa);
     montarTracado(caixa, corpo, p.w, {
       cor: op.cor,
       aviso: avisador(dica),
+      falas: ESCRITA_EN,
       aoFim: async () => {
         sfx.certo();
         await dizer(p.w);
-        await dica.trocar('Agora escreva sozinha, sem a trilha!', FALAS.escreverSozinha);
+        await dica.trocar(FALAS.escreverSozinha);
         sozinha(i);
       },
     });
-    if (i === 0) falarVarias([[FALAS.escrever, 'pt'], [p.w, 'en']]);
+    if (i === 0) falarVarias([[FALAS.escrever, 'en'], [p.w, 'en']]);
     else dizer(p.w);
   }
   function sozinha(i) {
     const p = alvos[i];
     const { corpo } = cabecalho(i, p);
-    const dica = lila('Escreva sozinha, respeitando as linhas.', { fala: FALAS_LETRAS.escreverPalavra });
+    const dica = lila(FALAS.escreverPalavra, { lang: 'en' });
     const modelo = h('div', { class: 'lt-modelo' }, palavraNaPauta(p.w, { classe: 'pauta-modelo' }));
     const caixa = h('div', { class: 'lt-tracar' });
     corpo.append(dica, modelo, caixa);
-    const livre = montarLivre(caixa, corpo, p.w);
+    const livre = montarLivre(caixa, corpo, p.w, ESCRITA_EN);
     let tentativas = 0;
     corpo.append(h('div', { class: 'lt-botoes' },
-      h('button', { class: 'xt-btn xt-btn-2', onclick: () => livre.apagar() }, '🧽 Apagar'),
+      h('button', { class: 'xt-btn xt-btn-2', onclick: () => livre.apagar() }, '🧽 Clear'),
       h('button', { class: 'xt-btn', onclick: async () => {
         const erro = livre.conferir();
-        if (erro === FALAS_LETRAS.escrevaPrimeiro) return dica.trocar(erro);
+        if (erro === ESCRITA_EN.escrevaPrimeiro) return dica.trocar(erro);
         tentativas++;
         if (erro) { sfx.errado(); return dica.trocar(erro); }
         if (tentativas === 1) acertosDePrimeira++;
         sfx.certo();
-        await dica.trocar('Sua palavra respeitou a pauta!', FALAS_LETRAS.palavraRespeitou);
+        await dica.trocar(FALAS.respeitou);
         if (i + 1 < alvos.length) return comTrilha(i + 1);
         const pct = acertosDePrimeira / alvos.length;
         const est = pct >= 0.9 ? 3 : pct >= 0.5 ? 2 : 1;
         progresso.registrar(MOD, op.chave, est);
-        festa(raiz, { estrelas: est, frase: 'Sua palavra respeitou a pauta!', deNovo: () => escrever(raiz, op), voltar: op.voltar, proxima: op.proxima });
-      } }, 'Pronto ✓'),
+        festa(raiz, { estrelas: est, frase: FALAS.respeitou, lang: 'en', deNovo: () => escrever(raiz, op), voltar: op.voltar, proxima: op.proxima });
+      } }, 'Done ✓'),
     ));
   }
   comTrilha(0);

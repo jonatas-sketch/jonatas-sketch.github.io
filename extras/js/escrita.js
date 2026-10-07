@@ -30,7 +30,7 @@ export function avisador(dica) {
 
 // Motor do traçado: segue os traços (de uma letra ou de uma palavra inteira) em ordem.
 // aoFim(saidas) quando termina; aviso(fala) para as dicas.
-export function montarTracado(caixa, corpo, texto, { cor, aoFim, aviso }) {
+export function montarTracado(caixa, corpo, texto, { cor, aoFim, aviso, falas = FALAS }) {
   const { svg, x0 } = pautaGrande(corpo, larguraPalavra(texto));
   caixa.replaceChildren(svg);
   const g = s('g', { transform: `translate(${x0} 0)` });
@@ -120,7 +120,7 @@ export function montarTracado(caixa, corpo, texto, { cor, aoFim, aviso }) {
       sfx.errado();
       marcas.querySelector('.lt-inicio')?.classList.add('pisca');
       setTimeout(() => marcas.querySelector('.lt-inicio')?.classList.remove('pisca'), 900);
-      aviso(idx === 0 ? FALAS.bolinha : FALAS.continueBolinha);
+      aviso(idx === 0 ? falas.bolinha : falas.continueBolinha);
     }
   });
   svg.addEventListener('pointermove', (ev) => {
@@ -145,7 +145,7 @@ export function montarTracado(caixa, corpo, texto, { cor, aoFim, aviso }) {
     if (!perto) {
       desenhando = false;
       saidas++;
-      aviso(FALAS.saiu);
+      aviso(falas.saiu);
       marcarInicio();
     }
   });
@@ -162,7 +162,7 @@ export function montarTracado(caixa, corpo, texto, { cor, aoFim, aviso }) {
 }
 
 // Escrever sem trilha: confere só os limites da pauta (altura certa para a família)
-export function montarLivre(caixa, corpo, texto) {
+export function montarLivre(caixa, corpo, texto, falas = FALAS) {
   const { svg } = pautaGrande(corpo, Math.max(120, larguraPalavra(texto) * 1.3));
   caixa.replaceChildren(svg);
   const tinta = s('g');
@@ -201,7 +201,7 @@ export function montarLivre(caixa, corpo, texto) {
         const xs = t.pts.map((q) => q.x), ys = t.pts.map((q) => q.y);
         return Math.max(...xs) - Math.min(...xs) > 14 || Math.max(...ys) - Math.min(...ys) > 14; // ignora pingos (i, j)
       });
-      if (!usados.length) return FALAS.escrevaPrimeiro;
+      if (!usados.length) return falas.escrevaPrimeiro;
       const ys = usados.flatMap((t) => t.pts.map((q) => q.y));
       const cima = Math.min(...ys), baixo = Math.max(...ys);
       const letras = [...texto].filter((l) => l !== ' ');
@@ -209,11 +209,11 @@ export function montarLivre(caixa, corpo, texto) {
       const macaco = letras.some((l) => familiasDe(l).includes('macaco'));
       const soT = girafa && letras.every((l) => l === 't' || !familiasDe(l).includes('girafa'));
       const palavra = letras.length > 1;
-      if (girafa && cima > (soT ? 30 : 16)) return palavra ? FALAS.palavraFaltouSubir : FALAS.faltouSubir;
-      if (!girafa && cima < MEIO - 14) return palavra ? FALAS.palavraSubiu : FALAS.subiuDemais(macaco);
-      if (macaco && baixo < CHAO + 24) return palavra ? FALAS.palavraFaltouDescer : FALAS.faltouDescer;
-      if (!macaco && baixo > CHAO + 14) return palavra ? FALAS.palavraAfundou : FALAS.afundou;
-      if (!macaco && baixo < CHAO - 14) return FALAS.flutuando;
+      if (girafa && cima > (soT ? 30 : 16)) return palavra ? falas.palavraFaltouSubir : falas.faltouSubir;
+      if (!girafa && cima < MEIO - 14) return palavra ? falas.palavraSubiu : falas.subiuDemais(macaco);
+      if (macaco && baixo < CHAO + 24) return palavra ? falas.palavraFaltouDescer : falas.faltouDescer;
+      if (!macaco && baixo > CHAO + 14) return palavra ? falas.palavraAfundou : falas.afundou;
+      if (!macaco && baixo < CHAO - 14) return falas.flutuando;
       return null;
     },
   };
